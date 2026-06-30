@@ -2,775 +2,974 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<title>Stable Money — Fixed Deposits</title>
-<meta name="description" content="Stable Money FD prototype — manage fixed deposits, reinvest, track tax, and chat with an AI investment guide.">
-
-<!-- Tabler Icons (used as <i class="ti ti-*"> throughout) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-
-<!-- Google Font used as var(--font-sans) -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stable Money — The Fact-Backed Second FD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --surface-0:#F4F3FB;
-    --surface-1:#F7F6FC;
-    --surface-2:#FFFFFF;
-    --text-primary:#1C1B2E;
-    --text-secondary:#534AB7;
-    --text-muted:#8A87A6;
-    --border:#E4E2F1;
-    --radius:10px;
-    --font-sans:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --pri:#5A31F4;--pri-d:#4422C8;--pri-wash:#F0ECFE;--pri-wash2:#E7E0FD;
+    --neon:#C8F560;--neon-d:#9BD317;
+    --ink:#1A1626;--ink-2:#4A4458;--slate:#6B6577;--slate-l:#9A94A6;
+    --bg:#F6F5FB;--surface:#FFFFFF;--line:#ECEAF3;--line-2:#DEDAEC;
+    --ok:#1F9D6B;--ok-wash:#E6F6EF;--warn:#C8841F;--warn-wash:#FCF3E2;--warn-line:#F0DDB0;
+    --fact:#0F6E56;--fact-wash:#E6F6EF;
+    --r:16px;--r-sm:11px;
+    --sh:0 1px 2px rgba(26,22,38,.04),0 6px 18px rgba(26,22,38,.05);
+    --sh-lg:0 8px 30px rgba(90,49,244,.12);
   }
-  html, body{
-    margin:0;
-    padding:0;
-    background:var(--surface-0);
-    font-family:var(--font-sans);
-    -webkit-font-smoothing:antialiased;
-  }
-  body{
-    display:flex;
-    justify-content:center;
-    padding:24px 12px;
-  }
-  .sr-only{
-    position:absolute;
-    width:1px;height:1px;
-    padding:0;margin:-1px;
-    overflow:hidden;
-    clip:rect(0,0,0,0);
-    white-space:nowrap;
-    border:0;
-  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink);
+    background:radial-gradient(1100px 500px at 12% -8%,#EFEAFD 0,transparent 55%),radial-gradient(900px 460px at 100% 0,#F2FCE0 0,transparent 48%),var(--bg);
+    min-height:100vh;padding:34px 18px 90px;-webkit-font-smoothing:antialiased;}
+  .num{font-variant-numeric:tabular-nums;}
+  .head{max-width:760px;margin:0 auto 22px;}
+  .head h1{font-size:31px;line-height:1.12;font-weight:800;letter-spacing:-.02em;margin-bottom:11px;}
+  .head p{font-size:15px;line-height:1.62;color:var(--slate);max-width:640px;}
+  /* how-to + seeded-data note */
+  .howto{max-width:760px;margin:0 auto 14px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--sh);padding:13px 16px;display:flex;gap:12px;align-items:flex-start;}
+  .howto .ic{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;padding-left:2px;}
+  .howto p{font-size:12.5px;line-height:1.55;color:var(--slate);}
+  .howto b{color:var(--ink);font-weight:700;}
+  .seeded{max-width:760px;margin:0 auto 24px;display:flex;gap:9px;align-items:flex-start;background:#FBFAFE;border:1px dashed var(--line-2);border-radius:12px;padding:10px 14px;}
+  .seeded svg{width:15px;height:15px;flex:0 0 15px;color:var(--fact);margin-top:1px;}
+  .seeded p{font-size:11.5px;line-height:1.5;color:var(--slate);}
+  .seeded b{color:var(--fact);font-weight:700;}
+  .stage{display:flex;justify-content:center;}
+  /* phone */
+  .phone{width:380px;height:760px;background:#15101F;border-radius:48px;padding:11px;position:relative;box-shadow:0 36px 70px -24px rgba(40,20,90,.5),0 0 0 1px rgba(40,20,90,.07);}
+  .screen{width:100%;height:100%;background:var(--bg);border-radius:37px;overflow:hidden;position:relative;display:flex;flex-direction:column;}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:128px;height:28px;background:#15101F;border-radius:0 0 17px 17px;z-index:80;}
+  .sb{height:46px;flex:0 0 46px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;font-size:13px;font-weight:700;z-index:5;}
+  .sb.dk{color:#fff;}
+  .view{flex:1;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column;}
+  .view.active{display:flex;}
+  .view::-webkit-scrollbar{width:0;}
+  .ab{display:flex;align-items:center;gap:11px;padding:4px 18px 12px;}
+  .ab .bk{width:32px;height:32px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;}
+  .ab .ti{font-size:15.5px;font-weight:700;}
+  .body{padding:2px 18px 24px;display:flex;flex-direction:column;gap:13px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);}
+  .pad{padding:16px;}
+  /* hero */
+  .sm-hero{background:linear-gradient(150deg,var(--pri) 0%,var(--pri-d) 100%);padding:8px 18px 22px;}
+  .sm-top{display:flex;align-items:center;gap:10px;}
+  .sm-logo{font-size:17px;font-weight:800;color:#fff;display:flex;align-items:center;gap:7px;}
+  .sm-logo .mk{width:22px;height:22px;border-radius:7px;background:var(--neon);display:flex;align-items:center;justify-content:center;}
+  .sm-logo .mk svg{width:13px;height:13px;color:var(--pri-d);}
+  .sm-top .sp{flex:1;}
+  .sm-bell{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;}
+  .sm-bell svg{width:17px;height:17px;color:#fff;}
+  .sm-bell .pip{position:absolute;top:7px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--neon);border:1.5px solid var(--pri);}
+  .sm-bell.off .pip{display:none;}
+  .sm-av{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;}
+  .sm-port{margin-top:16px;color:#fff;}
+  .sm-port .l{font-size:12px;opacity:.8;font-weight:500;}
+  .sm-port .v{font-size:27px;font-weight:800;letter-spacing:-.02em;margin-top:3px;}
+  /* idle-cash prompt */
+  .lift{margin:-14px 18px 0;position:relative;z-index:3;}
+  .idle{background:var(--surface);border:1px solid var(--warn-line);border-radius:var(--r);padding:15px;box-shadow:var(--sh-lg);position:relative;overflow:hidden;}
+  .idle::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--warn);}
+  .idle .fl{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#9A6612;margin-bottom:9px;}
+  .idle h3{font-size:15.5px;font-weight:700;line-height:1.34;}
+  .idle .barwrap{margin:13px 0 6px;}
+  .idle .barrow{display:flex;align-items:center;gap:9px;margin-bottom:7px;font-size:12px;}
+  .idle .barrow .lab{width:74px;flex:0 0 74px;color:var(--slate);font-weight:600;}
+  .idle .bar{flex:1;height:18px;border-radius:6px;position:relative;background:var(--bg);overflow:hidden;}
+  .idle .bar .fillb{height:100%;border-radius:6px;}
+  .idle .barrow .pct{width:42px;flex:0 0 42px;text-align:right;font-weight:800;}
+  .idle .go{margin-top:12px;display:flex;align-items:center;justify-content:space-between;background:var(--pri);color:#fff;font-size:13.5px;font-weight:700;padding:13px 15px;border-radius:11px;cursor:pointer;}
+  /* fact chip */
+  .fact{display:flex;gap:8px;align-items:flex-start;background:var(--fact-wash);border:1px solid #C2E8D5;border-radius:10px;padding:9px 11px;}
+  .fact svg{width:14px;height:14px;flex:0 0 14px;color:var(--fact);margin-top:1px;}
+  .fact p{font-size:11px;line-height:1.45;color:#0E5A47;}
+  .fact a,.fact .src{color:var(--fact);font-weight:700;text-decoration:underline;cursor:pointer;}
+  .seclbl{font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--slate-l);margin:6px 2px -2px;}
+  .seclbl.row{display:flex;justify-content:space-between;align-items:center;}
+  .aibadge{background:linear-gradient(90deg,var(--pri),#7C5CF6);color:#fff;font-size:10px;font-weight:800;letter-spacing:.04em;padding:3px 9px;border-radius:999px;text-transform:none;}
+  .aientry{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r);cursor:pointer;background:linear-gradient(135deg,#2A1D5E 0%,#4422C8 60%,#5A31F4 100%);box-shadow:var(--sh-lg);position:relative;overflow:hidden;}
+  .aientry::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:rgba(200,245,96,.16);}
+  .aientry-ic{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;flex:0 0 40px;}
+  .aientry-ic svg{width:22px;height:22px;color:var(--neon);}
+  .aientry-tx{flex:1;z-index:1;}
+  .aientry-tx h4{font-size:14px;font-weight:700;color:#fff;}
+  .aientry-tx p{font-size:11px;color:#D8D2EC;line-height:1.4;margin-top:3px;}
+  .aientry-go{color:#fff;font-size:18px;font-weight:700;z-index:1;}
+  .ai-hero{background:linear-gradient(135deg,#2A1D5E,#4422C8);padding:6px 18px 20px;}
+  .ai-hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(200,245,96,.18);color:var(--neon);font-size:11px;font-weight:800;padding:5px 11px;border-radius:999px;margin-bottom:8px;}
+  .ai-hero h2{color:#fff;font-size:19px;font-weight:800;line-height:1.25;}
+  .ai-hero p{color:#D8D2EC;font-size:12px;line-height:1.5;margin-top:6px;}
+  .ai-field{margin-bottom:13px;}
+  .ai-field .lb{font-size:12px;font-weight:700;color:var(--slate);margin-bottom:7px;display:flex;justify-content:space-between;}
+  .ai-field .lb .v{color:var(--pri-d);font-weight:800;}
+  .ai-seg{display:flex;gap:6px;flex-wrap:wrap;}
+  .ai-seg button{flex:1;min-width:54px;font-family:inherit;font-size:11.5px;font-weight:700;color:var(--slate);background:var(--surface);border:1px solid var(--line-2);border-radius:9px;padding:9px 5px;cursor:pointer;}
+  .ai-seg button.on{background:var(--pri);color:#fff;border-color:var(--pri);}
+  .ai-out{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:15px;min-height:140px;}
+  .ai-placeholder{color:var(--slate-l);font-size:12.5px;line-height:1.6;text-align:center;padding:34px 12px;}
+  .ai-typed{font-size:12.5px;line-height:1.7;color:var(--ink-2);white-space:pre-wrap;}
+  .ai-typed b{color:var(--ink);font-weight:700;}
+  .ai-cursor{display:inline-block;width:6px;height:13px;background:var(--pri);margin-left:1px;animation:aiblink 1s steps(2) infinite;vertical-align:middle;}
+  @keyframes aiblink{50%{opacity:0;}}
+  .ai-alloc{display:flex;gap:13px;align-items:center;margin-bottom:12px;padding:12px;background:var(--bg);border-radius:12px;}
+  .ai-donut{width:74px;height:74px;flex:0 0 74px;position:relative;}
+  .ai-donut svg{transform:rotate(-90deg);}
+  .ai-donut .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ai-donut .c .a{font-size:15px;font-weight:800;}.ai-donut .c .b{font-size:8.5px;color:var(--slate);}
+  .ai-legrow{display:flex;align-items:center;gap:7px;font-size:11.5px;margin:3px 0;}
+  .ai-legrow .sw{width:10px;height:10px;border-radius:3px;flex:0 0 10px;}
+  .ai-legrow .amt{margin-left:auto;font-weight:800;}
+  /* linked savings accounts strip */
+  .insight{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--pri);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh-lg);cursor:pointer;}
+  .insight-tx{flex:1;}
+  .insight-tx h3{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.3;}
+  .insight-tx p{font-size:12.5px;color:var(--slate);margin-top:4px;}
+  .insight-tx p b{color:var(--ok);font-weight:800;}
+  .insight-go{width:30px;height:30px;border-radius:50%;background:var(--pri-wash);color:var(--pri-d);display:flex;align-items:center;justify-content:center;font-weight:700;flex:0 0 30px;}
+  .linked{display:flex;gap:9px;padding:2px 2px 4px;align-items:stretch;}
+  .acct{flex:1 1 0;min-width:0;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:12px;box-shadow:var(--sh);cursor:pointer;}
+  .acct .top{display:flex;align-items:center;gap:7px;margin-bottom:8px;}
+  .acct .bk{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;color:#fff;flex:0 0 24px;}
+  .acct .nm{font-size:11.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .acct .bal{font-size:16px;font-weight:800;letter-spacing:-.01em;}
+  .acct .sub{font-size:9.5px;color:var(--slate-l);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .acct .gap{display:flex;align-items:center;gap:6px;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);}
+  .acct .gap-col{display:flex;flex-direction:column;min-width:0;}
+  .acct .gap-col .gl{font-size:8.5px;color:var(--slate-l);font-weight:600;white-space:nowrap;}
+  .acct .gap-col .gv{font-size:13px;font-weight:800;color:var(--slate);white-space:nowrap;}
+  .acct .gap-col .gv.up{color:var(--ok);}
+  .acct .gap-arrow{color:var(--slate-l);font-weight:700;font-size:11px;}
+  .acct .acct-cta{margin-top:auto;font-size:10.5px;font-weight:700;color:var(--pri-d);background:var(--pri-wash);border-radius:8px;padding:8px 4px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .acct.addcard{flex:0 0 64px;justify-content:center;align-items:center;border-style:dashed;}
+  .reinvest-bar{display:flex;align-items:center;gap:9px;margin:0 16px 14px;padding:11px 12px;background:var(--ok-wash);border:1px solid #C2E8D5;border-radius:11px;cursor:pointer;}
+  .reinvest-bar svg{width:16px;height:16px;flex:0 0 16px;color:var(--ok);}
+  .reinvest-bar span{font-size:11.5px;font-weight:600;color:#0E5A47;line-height:1.35;}
+  .reinvest-bar .ri-go{margin-left:auto;color:var(--ok);font-weight:800;flex:0 0 auto;}
+  .bankfd-opt{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--sh);cursor:pointer;}
+  /* bank-type filter chips on compare */
+  .bankfilter{display:flex;gap:7px;padding:2px 2px 0;overflow-x:auto;}
+  .bankfilter::-webkit-scrollbar{height:0;}
+  .bankfilter .bf{flex:0 0 auto;font-size:11px;font-weight:700;color:var(--slate);background:var(--surface);border:1px solid var(--line-2);border-radius:999px;padding:7px 13px;cursor:pointer;white-space:nowrap;}
+  .bankfilter .bf.on{background:var(--pri-wash);color:var(--pri-d);border-color:var(--pri);}
+  .yourbank-tag{font-size:9.5px;font-weight:700;background:#FCF3E2;color:#9A6612;padding:2px 7px;border-radius:6px;}
+  /* demo hover tooltip — explains production sourcing on hover (presenter cue) */
+  #tip{position:fixed;z-index:300;max-width:250px;background:#15101F;color:#fff;font-size:11px;line-height:1.45;padding:9px 11px;border-radius:9px;box-shadow:0 10px 30px rgba(0,0,0,.3);pointer-events:none;opacity:0;transition:opacity .12s;display:none;}
+  #tip b{color:var(--neon);font-weight:700;}
+  #tip::after{content:"";position:absolute;bottom:-5px;left:14px;width:10px;height:10px;background:#15101F;transform:rotate(45deg);}
+  .src,.fact{cursor:pointer;}
+  #toast{position:fixed;left:50%;bottom:42px;transform:translateX(-50%) translateY(20px);background:#15101F;color:#fff;font-size:12.5px;font-weight:600;padding:11px 18px;border-radius:11px;box-shadow:0 12px 34px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:300;max-width:320px;text-align:center;line-height:1.4;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  #toast b{color:var(--neon);}
+  .pb{display:flex;align-items:center;gap:12px;padding:14px 15px;}
+  .pb .ic{width:40px;height:40px;border-radius:11px;background:var(--pri-wash);color:var(--pri-d);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px;flex:0 0 40px;}
+  .pb .m{flex:1;}.pb .m .n{font-size:13.5px;font-weight:700;}.pb .m .s{font-size:11.5px;color:var(--slate);margin-top:2px;}
+  .pb .a .v{font-size:14px;font-weight:700;}.pb .a{text-align:right;}.pb .a .d{font-size:10.5px;color:var(--slate-l);margin-top:2px;}
+  .tools{display:flex;gap:9px;}
+  .tool{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 10px;text-align:center;cursor:pointer;box-shadow:var(--sh);}
+  .tool .ic{width:34px;height:34px;border-radius:10px;background:var(--pri-wash);color:var(--pri-d);display:flex;align-items:center;justify-content:center;margin:0 auto 7px;}
+  .tool .ic svg{width:18px;height:18px;}.tool .t{font-size:11px;font-weight:700;line-height:1.3;}
+  .tb{flex:0 0 60px;display:flex;border-top:1px solid var(--line);background:var(--surface);position:sticky;bottom:0;margin-top:auto;z-index:20;box-shadow:0 -6px 16px -10px rgba(40,20,90,.18);}
+  .tb .t{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;color:var(--slate-l);font-weight:600;}
+  .tb .t svg{width:20px;height:20px;}.tb .t.on{color:var(--pri);}
+  /* page title in flows */
+  .pgt{font-size:19px;font-weight:800;letter-spacing:-.01em;margin:2px 2px 0;}
+  .pgs{font-size:12.5px;color:var(--slate);line-height:1.5;margin:5px 2px 2px;}
+  /* allocation donut */
+  .alloc-wrap{display:flex;align-items:center;gap:16px;justify-content:center;padding:6px 0;}
+  .donut{position:relative;width:120px;height:120px;flex:0 0 120px;}
+  .donut svg{transform:rotate(-90deg);}
+  .donut .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .donut .ctr .a{font-size:18px;font-weight:800;}.donut .ctr .b{font-size:10px;color:var(--slate);}
+  .alloc-leg{display:flex;flex-direction:column;gap:10px;}
+  .alloc-leg .row{display:flex;align-items:flex-start;gap:9px;}
+  .alloc-leg .row .sw{width:13px;height:13px;border-radius:4px;flex:0 0 13px;margin-top:2px;}
+  .alloc-leg .row .tx h5{font-size:13px;font-weight:700;}
+  .alloc-leg .row .tx p{font-size:11px;color:var(--slate);line-height:1.4;margin-top:1px;}
+  .alloc-leg .row .tx .amt{font-size:11.5px;font-weight:800;color:var(--pri-d);margin-top:2px;}
+  .field{margin:4px 2px;}
+  .field .lb{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px;}
+  .field .lb .k{color:var(--slate);font-weight:600;}.field .lb .v{font-weight:800;color:var(--pri-d);}
+  input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:6px;background:var(--line-2);outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:23px;height:23px;border-radius:50%;background:var(--pri);border:4px solid #fff;box-shadow:0 1px 5px rgba(90,49,244,.4);cursor:pointer;}
+  /* comparison */
+  .sortbar{display:flex;gap:7px;padding:2px;}
+  .sortbar .sc{flex:1;font-size:11.5px;font-weight:700;color:var(--slate);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 4px;text-align:center;cursor:pointer;}
+  .sortbar .sc.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .bankrow{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--sh);cursor:pointer;position:relative;}
+  .bankrow.best{border-color:var(--neon-d);box-shadow:0 0 0 2px rgba(155,211,23,.22);}
+  .bankrow.current{border-style:dashed;border-color:var(--line-2);background:#FBFAFE;box-shadow:none;}
+  .bankrow .logo{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex:0 0 42px;color:#fff;}
+  .bankrow .info{flex:1;min-width:0;}
+  .bankrow .info .nm{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .bankrow .info .meaning{font-size:10.5px;color:var(--slate);margin-top:3px;line-height:1.35;}
+  .bankrow .info .srcline{font-size:9.5px;color:var(--fact);font-weight:700;margin-top:4px;display:flex;align-items:center;gap:4px;}
+  .bankrow .info .srcline svg{width:10px;height:10px;}
+  .bankrow .rate{text-align:right;flex:0 0 auto;}
+  .bankrow .rate .pct{font-size:18px;font-weight:800;color:var(--ok);letter-spacing:-.02em;}
+  .bankrow .rate .gain{font-size:10px;color:var(--ok);font-weight:700;margin-top:2px;}
+  .pill{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:6px;display:inline-flex;align-items:center;gap:3px;}
+  .pill.best{background:#F2FCD9;color:var(--neon-d);}.pill.cur{background:#EFEDF4;color:var(--slate);}
+  .pill.rating{background:var(--pri-wash);color:var(--pri-d);}
+  .disclose{display:flex;gap:8px;align-items:flex-start;background:var(--bg);border:1px dashed var(--line-2);border-radius:10px;padding:10px 12px;}
+  .disclose svg{width:15px;height:15px;flex:0 0 15px;color:var(--slate);margin-top:1px;}
+  .disclose p{font-size:11px;color:var(--slate);line-height:1.45;}.disclose b{color:var(--ink-2);}
+  .fr{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:13.5px;}
+  .fr+.fr{border-top:1px solid var(--line);}
+  .fr .k{color:var(--slate);font-weight:500;}.fr .v{font-weight:700;}.fr .v.pos{color:var(--ok);}
+  .fr.big .v{font-size:15px;}
+  .trust{display:flex;gap:11px;align-items:flex-start;padding:12px 0;}
+  .trust+.trust{border-top:1px solid var(--line);}
+  .trust .ck{width:23px;height:23px;border-radius:50%;background:var(--ok-wash);color:var(--ok);flex:0 0 23px;display:flex;align-items:center;justify-content:center;}
+  .trust .ck svg{width:13px;height:13px;}
+  .trust .t h5{font-size:13px;font-weight:700;}.trust .t p{font-size:11.5px;color:var(--slate);line-height:1.5;margin-top:2px;}
+  .reass{font-size:11.5px;color:var(--slate);text-align:center;line-height:1.5;padding:2px 6px;}
+  .disclaimer{font-size:10px;color:var(--slate-l);line-height:1.45;padding:8px 10px;margin:6px 2px 0;border-top:1px solid var(--line);}
+  .detect-note{font-size:10.5px;color:var(--slate-l);line-height:1.4;margin:-2px 2px 8px;}
+  .stalebox{text-align:center;padding:24px 16px;background:var(--warn-wash);border:1px solid var(--warn-line);border-radius:14px;}
+  .stalebox .stale-ic{width:34px;height:34px;border-radius:50%;background:var(--warn);color:#fff;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;}
+  .stalebox h5{font-size:14px;font-weight:800;color:#946011;}
+  .stalebox p{font-size:12px;color:var(--ink-2);line-height:1.5;margin-top:6px;}
+  .stale-toggle{font-size:10px;color:var(--slate-l);text-align:center;margin-top:10px;cursor:pointer;text-decoration:underline;}
+  .bufsplit{margin-top:12px;display:flex;flex-direction:column;gap:10px;}
+  .bufrow{display:flex;align-items:center;gap:10px;}
+  .bufrow .bw{width:10px;height:10px;border-radius:3px;flex:0 0 10px;}
+  .bufrow .bx{flex:1;}.bufrow .bx h5{font-size:13px;font-weight:700;}.bufrow .bx p{font-size:11px;color:var(--slate);line-height:1.4;margin-top:1px;}
+  .bufrow .bv{font-size:14px;font-weight:800;color:var(--ink);}
+  .reass a{color:var(--pri);font-weight:700;cursor:pointer;}
+  .foot{padding:11px 18px 16px;background:linear-gradient(180deg,rgba(246,245,251,0),var(--bg) 28%);}
+  .btn{width:100%;border:none;border-radius:13px;font-family:inherit;font-size:14.5px;font-weight:700;padding:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-pri{background:var(--pri);color:#fff;}.btn-pri:active{background:var(--pri-d);}
+  .btn-gh{background:transparent;color:var(--slate);font-weight:600;padding:11px;font-size:13px;}
+  /* success */
+  .succ{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:6px;}
+  .succ .ring{width:78px;height:78px;border-radius:50%;background:var(--ok-wash);display:flex;align-items:center;justify-content:center;margin-bottom:5px;animation:pop .4s ease;}
+  @keyframes pop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+  .succ .ring svg{width:35px;height:35px;color:var(--ok);}
+  .succ h2{font-size:22px;font-weight:800;}.succ p{font-size:13px;color:var(--slate);line-height:1.55;max-width:250px;}
+  .youdid{display:inline-flex;align-items:center;gap:7px;background:var(--ok-wash);color:var(--ok);font-size:12px;font-weight:700;padding:7px 13px;border-radius:999px;margin-top:3px;}
+  .succ .card{width:100%;margin-top:10px;text-align:left;}
+  .restart{margin:14px auto 0;background:var(--surface);border:1px solid var(--line-2);color:var(--ink);font-size:12.5px;font-weight:700;padding:9px 18px;border-radius:10px;cursor:pointer;}
+  /* notif dropdown */
+  .notif{position:absolute;top:84px;right:16px;width:300px;background:var(--surface);border:1px solid var(--line-2);border-radius:14px;box-shadow:var(--sh-lg);padding:8px;z-index:60;display:none;}
+  .notif.show{display:block;}
+  .notif .item{display:flex;gap:9px;padding:11px 10px;border-radius:10px;cursor:pointer;}
+  .notif .item:hover{background:var(--bg);}
+  .notif .item .ic{width:28px;height:28px;border-radius:8px;background:var(--pri-wash);color:var(--pri-d);display:flex;align-items:center;justify-content:center;flex:0 0 28px;}
+  .notif .item .ic svg{width:15px;height:15px;}
+  .notif .item h5{font-size:12px;font-weight:700;line-height:1.3;}
+  .notif .item p{font-size:10.5px;color:var(--slate);line-height:1.4;margin-top:2px;}
+  .notif .item .src{font-size:9.5px;color:var(--fact);font-weight:700;margin-top:4px;}
+  .ladvis{display:flex;align-items:flex-end;gap:8px;height:90px;padding:10px 4px 0;}
+  .ladvis .c{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;}
+  .ladvis .c .stk{width:100%;border-radius:6px 6px 0 0;background:var(--pri);}
+  .ladvis .c .mo{font-size:9.5px;color:var(--slate);font-weight:700;}
+  .rung{display:flex;align-items:center;gap:11px;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);box-shadow:var(--sh);}
+  .rung+.rung{margin-top:9px;}
+  .rung .st{width:27px;height:27px;border-radius:8px;background:var(--pri);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 27px;}
+  .rung.fire .st{background:var(--warn);}.rung.fire{border-color:var(--warn-line);background:var(--warn-wash);}
+  .rung .br{flex:1;}.rung .br .t{font-size:12.5px;font-weight:700;}.rung .br .wn{font-size:10px;color:var(--slate);margin-top:2px;}
+  .rung .am{font-size:12.5px;font-weight:800;text-align:right;}
+  .hint{max-width:760px;margin:22px auto 0;font-size:12.5px;color:var(--slate);text-align:center;line-height:1.6;}
+  .hint b{color:var(--ink);}
 </style>
 </head>
 <body>
+<div class="head">
+  <h1>How a cautious first-timer comes back — within 90 days</h1>
+  <p>The first FD is a small trial. What converts it into a real second deposit isn't a louder nudge — it's an experience that earns trust with facts the user can verify for themselves. Every screen below carries a checkable fact and its source. The app guides the logic; the user always owns the choice.</p>
+</div>
 
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-.app{max-width:420px;margin:0 auto;background:var(--surface-0);min-height:600px;position:relative;font-family:var(--font-sans);}
-.screen{display:none;flex-direction:column;min-height:580px;}
-.screen.active{display:flex;}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;background:var(--surface-2);border-bottom:0.5px solid var(--border);}
-.topbar-title{font-size:16px;font-weight:500;color:var(--text-primary);}
-.topbar-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
-.back-btn{width:32px;height:32px;border:none;background:var(--surface-1);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-size:16px;}
-.avatar{width:32px;height:32px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#3C3489;cursor:pointer;border:none;}
-.content{flex:1;overflow-y:auto;padding:0 0 80px;}
-.bottom-nav{position:absolute;bottom:0;left:0;right:0;background:var(--surface-2);border-top:0.5px solid var(--border);display:flex;padding:8px 0 12px;}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px;border:none;background:none;color:var(--text-muted);font-family:var(--font-sans);}
-.nav-item.active{color:#534AB7;}
-.nav-item i{font-size:20px;}
-.nav-item span{font-size:10px;font-weight:500;}
-.section{padding:16px;}
-.section-label{font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
-.card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;}
-.hero-card{background:#3C3489;border-radius:16px;margin:16px;padding:20px;color:#fff;}
-.hero-label{font-size:11px;opacity:0.7;margin-bottom:6px;}
-.hero-amount{font-size:28px;font-weight:500;margin-bottom:4px;}
-.hero-detail{font-size:12px;opacity:0.75;margin-bottom:16px;}
-.hero-pills{display:flex;gap:8px;flex-wrap:wrap;}
-.hero-pill{background:rgba(255,255,255,0.15);border-radius:20px;padding:5px 10px;font-size:11px;}
-.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:500;}
-.badge-active{background:#EAF3DE;color:#3B6D11;}
-.badge-mature{background:#FAEEDA;color:#854F0B;}
-.fd-row{display:flex;justify-content:space-between;align-items:center;}
-.fd-bank{font-size:14px;font-weight:500;color:var(--text-primary);}
-.fd-meta{font-size:12px;color:var(--text-muted);margin-top:2px;}
-.fd-value{font-size:15px;font-weight:500;color:var(--text-primary);}
-.fd-rate{font-size:12px;color:#534AB7;font-weight:500;}
-.progress-bar{height:4px;background:var(--surface-1);border-radius:2px;margin-top:10px;overflow:hidden;}
-.progress-fill{height:100%;border-radius:2px;background:#534AB7;}
-.what-next-card{background:#EEEDFE;border:0.5px solid #CECBF6;border-radius:12px;padding:14px;margin-bottom:10px;}
-.wn-title{font-size:13px;font-weight:500;color:#3C3489;margin-bottom:4px;}
-.wn-desc{font-size:12px;color:#534AB7;line-height:1.5;}
-.wn-action{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;color:#3C3489;margin-top:10px;cursor:pointer;border:none;background:none;font-family:var(--font-sans);padding:0;}
-.btn-primary{width:100%;padding:12px;background:#534AB7;color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font-sans);}
-.btn-secondary{width:100%;padding:11px;background:var(--surface-2);color:#534AB7;border:1.5px solid #534AB7;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font-sans);margin-top:8px;}
-.divider{height:0.5px;background:var(--border);margin:0 16px;}
-.reinvest-option{border:1.5px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;cursor:pointer;}
-.reinvest-option.selected{border-color:#534AB7;background:#EEEDFE;}
-.opt-title{font-size:13px;font-weight:500;color:var(--text-primary);}
-.opt-detail{font-size:12px;color:var(--text-muted);margin-top:2px;}
-.opt-return{font-size:14px;font-weight:500;color:#534AB7;margin-top:6px;}
-.field-label{font-size:12px;color:var(--text-muted);margin-bottom:4px;}
-.screen-pad{padding:16px;}
-.success-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;min-height:400px;}
-.success-icon{width:64px;height:64px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:20px;color:#3B6D11;}
-.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;justify-content:center;}
-.chip{background:#EEEDFE;color:#3C3489;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:500;}
-.notif-wrap{position:relative;display:inline-flex;}
-.notif-dot{position:absolute;top:0;right:0;width:8px;height:8px;border-radius:50%;background:#E24B4A;border:1.5px solid var(--surface-2);}
-.notif-item{display:flex;gap:12px;padding:14px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;}
-.notif-item.unread{background:#EEEDFE;}
-.notif-item.unread:hover{background:#E5E3FC;}
-.notif-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.notif-title{font-size:13px;font-weight:500;color:var(--text-primary);line-height:1.3;}
-.notif-body{font-size:12px;color:var(--text-muted);margin-top:2px;line-height:1.4;}
-.notif-time{font-size:10px;color:var(--text-muted);margin-top:4px;}
-.notif-unread-badge{width:8px;height:8px;border-radius:50%;background:#534AB7;flex-shrink:0;margin-top:4px;}
-.toggle-row{display:flex;gap:6px;padding:12px 16px 4px;}
-.toggle-btn{flex:1;padding:7px;border-radius:20px;border:0.5px solid var(--border);background:var(--surface-2);font-size:12px;font-weight:500;color:var(--text-secondary);cursor:pointer;font-family:var(--font-sans);}
-.toggle-btn.active{background:#EEEDFE;color:#3C3489;border-color:#CECBF6;}
-.rate-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border);}
-.rate-bank{font-size:13px;font-weight:500;color:var(--text-primary);}
-.rate-tenor{font-size:11px;color:var(--text-muted);margin-top:2px;}
-.rate-pct{font-size:15px;font-weight:500;color:#534AB7;}
-.rate-change{font-size:11px;color:#3B6D11;text-align:right;margin-top:2px;}
-.rate-change.down{color:#993C1D;}
-.profile-header{background:#3C3489;padding:28px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;}
-.profile-avatar{width:64px;height:64px;border-radius:50%;background:#534AB7;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500;color:#fff;border:2px solid rgba(255,255,255,0.3);}
-.profile-name{font-size:18px;font-weight:500;color:#fff;}
-.profile-sub{font-size:12px;color:rgba(255,255,255,0.7);}
-.profile-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;}
-.profile-row-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.profile-row-title{font-size:14px;font-weight:500;color:var(--text-primary);}
-.profile-row-sub{font-size:11px;color:var(--text-muted);margin-top:1px;}
-.tax-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);}
-.tax-row:last-child{border:none;}
-.tax-label{font-size:13px;color:var(--text-secondary);}
-.tax-val{font-size:13px;font-weight:500;color:var(--text-primary);}
-.tax-slab-btn{flex:1;padding:7px;border-radius:20px;border:0.5px solid var(--border);background:var(--surface-2);font-size:12px;font-weight:500;color:var(--text-secondary);cursor:pointer;font-family:var(--font-sans);}
-.tax-slab-btn.active{background:#EEEDFE;color:#3C3489;border-color:#CECBF6;}
-.dicgc-strip{background:#EAF3DE;border:0.5px solid #C0DD97;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.dicgc-icon{width:36px;height:36px;border-radius:8px;background:#27500A;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.dicgc-title{font-size:12px;font-weight:500;color:#27500A;}
-.dicgc-body{font-size:11px;color:#3B6D11;margin-top:2px;line-height:1.4;}
-.chat-wrap{display:flex;flex-direction:column;height:100%;min-height:520px;}
-.chat-messages{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px;padding-bottom:4px;}
-.msg{max-width:82%;display:flex;flex-direction:column;gap:3px;}
-.msg.user{align-self:flex-end;align-items:flex-end;}
-.msg.ai{align-self:flex-start;align-items:flex-start;}
-.msg-bubble{padding:10px 13px;border-radius:16px;font-size:13px;line-height:1.5;}
-.msg.user .msg-bubble{background:#534AB7;color:#fff;border-bottom-right-radius:4px;}
-.msg.ai .msg-bubble{background:var(--surface-2);border:0.5px solid var(--border);color:var(--text-primary);border-bottom-left-radius:4px;}
-.msg-time{font-size:10px;color:var(--text-muted);}
-.ai-avatar{width:24px;height:24px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3C3489;flex-shrink:0;}
-.msg-row{display:flex;gap:7px;align-items:flex-end;}
-.chat-input-row{padding:10px 12px;border-top:0.5px solid var(--border);display:flex;gap:8px;align-items:flex-end;background:var(--surface-2);}
-.chat-input{flex:1;border:0.5px solid var(--border);border-radius:20px;padding:9px 14px;font-size:13px;font-family:var(--font-sans);background:var(--surface-1);color:var(--text-primary);resize:none;min-height:38px;max-height:100px;outline:none;}
-.chat-input:focus{border-color:#534AB7;}
-.send-btn{width:36px;height:36px;border-radius:50%;background:#534AB7;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0;}
-.send-btn:disabled{background:var(--surface-1);color:var(--text-muted);cursor:not-allowed;}
-.quick-chips{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px 4px;}
-.quick-chip{background:var(--surface-1);border:0.5px solid var(--border);border-radius:20px;padding:5px 10px;font-size:11px;color:var(--text-secondary);cursor:pointer;white-space:nowrap;}
-.typing-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:blink 1.2s infinite;}
-.typing-dot:nth-child(2){animation-delay:0.2s;}
-.typing-dot:nth-child(3){animation-delay:0.4s;}
-@keyframes blink{0%,80%,100%{opacity:0.2;}40%{opacity:1;}}
-.escalate-card{background:#FAECE7;border:0.5px solid #F5C4B3;border-radius:10px;padding:12px;margin-top:8px;}
-.escalate-btn{margin-top:8px;padding:7px 14px;background:#993C1D;color:#fff;border:none;border-radius:var(--radius);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font-sans);}
-.trust-row{display:flex;gap:8px;margin:0 16px 16px;}
-.trust-pill{flex:1;background:var(--surface-2);border:0.5px solid var(--border);border-radius:10px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;}
-.trust-pill i{font-size:20px;color:#534AB7;}
-.trust-pill span{font-size:10px;color:var(--text-muted);line-height:1.3;}
-.trust-pill strong{font-size:11px;color:var(--text-primary);display:block;}
-</style>
+<div class="howto">
+  <span class="ic">▶</span>
+  <p>This is the Stable Money app. It opens on the home dashboard, where idle savings earning ~3% are shown against insured FD rates. Follow it through: <b>guided split → compare banks (you pick) → see the math → done</b>. <b>Hover any green fact chip</b> to see how that data is sourced in production.</p>
+</div>
 
-<h2 class="sr-only">Stable Money FD prototype for Sruthi — bell icon opens notifications (rate alerts merged in), profile avatar opens tax calculator and DICGC trust info, plus AI investment guide</h2>
+<div class="stage">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen" id="screen">
 
-<div class="app">
-
-  <!-- HOME -->
-  <div class="screen active" id="s-home">
-    <div class="topbar">
-      <div><div class="topbar-title">Stable Money</div><div class="topbar-sub">Good morning, Sruthi 👋</div></div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <button class="back-btn notif-wrap" onclick="goTo('s-notif')" aria-label="Notifications and alerts">
-          <i class="ti ti-bell" aria-hidden="true"></i>
-          <span class="notif-dot" id="home-notif-dot"></span>
-        </button>
-        <button class="avatar" onclick="goTo('s-profile')" aria-label="Profile">SR</button>
-      </div>
-    </div>
-    <div class="content">
-      <div class="hero-card">
-        <div class="hero-label">Total invested</div>
-        <div class="hero-amount">₹2,35,000</div>
-        <div class="hero-detail">Earning ₹14,820 interest by maturity</div>
-        <div class="hero-pills">
-          <div class="hero-pill"><strong>3</strong> active FDs</div>
-          <div class="hero-pill"><strong>₹1,06,416</strong> maturing in 18d</div>
-          <div class="hero-pill"><strong>8.1%</strong> avg rate</div>
+      <!-- HOME -->
+      <div class="view active" data-view="home">
+        <div class="sb dk"><span>9:41</span><span>5G 100%</span></div>
+        <div class="sm-hero">
+          <div class="sm-top">
+            <div class="sm-logo"><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 6"/></svg></span> Stable Money</div>
+            <span class="sp"></span>
+            <div class="sm-bell" id="bell" onclick="toggleNotif()"><span class="pip"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+            <div class="sm-av">P</div>
+          </div>
+          <div class="sm-port"><div class="l">Invested with Stable Money</div><div class="v num">₹26,750</div><div class="l" style="margin-top:4px;">1 fixed deposit · your first</div></div>
         </div>
-      </div>
-
-      <div style="padding:0 16px 4px;">
-        <div class="dicgc-strip">
-          <div class="dicgc-icon"><i class="ti ti-shield-check" style="color:#fff;font-size:18px;" aria-hidden="true"></i></div>
-          <div>
-            <div class="dicgc-title">DICGC insured up to ₹5 lakh</div>
-            <div class="dicgc-body">Your bank FDs are protected by the Deposit Insurance and Credit Guarantee Corporation — a Government of India body.</div>
+        <div class="notif" id="notif">
+          <div class="item" onclick="openRateAlert()">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8M14 7h7v7"/></svg></div>
+            <div><h5>RBI raised the repo rate by 0.25%</h5><p>Banks usually lift FD rates within weeks. Here's what it means for you.</p><div class="src">⌗ Source: RBI MPC statement →</div></div>
           </div>
         </div>
-      </div>
-
-      <div class="section" style="padding-bottom:0;">
-        <div class="section-label">What next?</div>
-        <div class="what-next-card">
-          <div class="wn-title">🔔 SBI FD matures in 18 days</div>
-          <div class="wn-desc">₹1,00,000 + ₹6,416 interest will be credited. Rates on similar tenors are at 8.25% — higher than your current 7.85%.</div>
-          <button class="wn-action" onclick="goTo('s-reinvest')">Reinvest now <i class="ti ti-arrow-right" style="font-size:14px;" aria-hidden="true"></i></button>
-        </div>
-        <div class="what-next-card" style="background:#FAEEDA;border-color:#FAC775;">
-          <div class="wn-title" style="color:#854F0B;">📈 Better rates available</div>
-          <div class="wn-desc" style="color:#854F0B;">Bajaj Finance is offering 8.5% for 18 months — 0.65% more than your current FD. On ₹1L that's ₹975 extra per year.</div>
-          <button class="wn-action" style="color:#633806;" onclick="goTo('s-notif')">See in notifications <i class="ti ti-arrow-right" style="font-size:14px;" aria-hidden="true"></i></button>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-label">My FDs</div>
-        <div class="card" onclick="goTo('s-reinvest')" style="cursor:pointer;">
-          <div class="fd-row">
-            <div><div class="fd-bank">SBI Fixed Deposit</div><div class="fd-meta">Opened 12 Jan · Matures 28 Jul</div></div>
-            <div style="text-align:right;"><div class="fd-value">₹1,00,000</div><div class="fd-rate">7.85% p.a.</div></div>
-          </div>
-          <div class="progress-bar"><div class="progress-fill" style="width:88%;"></div></div>
-          <div style="display:flex;justify-content:space-between;margin-top:5px;">
-            <span class="badge badge-mature">Matures in 18d</span>
-            <span style="font-size:11px;color:var(--text-muted);">Interest: +₹6,416</span>
+        <div class="lift">
+          <div class="insight" onclick="resetFlow();go('buffer')">
+            <div class="insight-tx">
+              <h3>₹3,20,000 in savings is earning just ~3%</h3>
+              <p>An insured FD could earn up to <b>8.1%</b>. See where it could go →</p>
+            </div>
+            <div class="insight-go">→</div>
           </div>
         </div>
-        <div class="card">
-          <div class="fd-row">
-            <div><div class="fd-bank">HDFC Bank FD</div><div class="fd-meta">Opened 3 Mar · Matures 3 Mar 2026</div></div>
-            <div style="text-align:right;"><div class="fd-value">₹85,000</div><div class="fd-rate">8.05% p.a.</div></div>
-          </div>
-          <div class="progress-bar"><div class="progress-fill" style="width:22%;"></div></div>
-          <div style="display:flex;justify-content:space-between;margin-top:5px;">
-            <span class="badge badge-active">Active · 254d left</span>
-            <span style="font-size:11px;color:var(--text-muted);">Interest: +₹5,626</span>
-          </div>
-        </div>
-        <div class="card">
-          <div class="fd-row">
-            <div><div class="fd-bank">Bajaj Finance FD</div><div class="fd-meta">Opened 10 May · Matures 10 May 2026</div></div>
-            <div style="text-align:right;"><div class="fd-value">₹50,000</div><div class="fd-rate">8.35% p.a.</div></div>
-          </div>
-          <div class="progress-bar"><div class="progress-fill" style="width:8%;"></div></div>
-          <div style="display:flex;justify-content:space-between;margin-top:5px;">
-            <span class="badge badge-active">Active · 315d left</span>
-            <span style="font-size:11px;color:var(--text-muted);">Interest: +₹2,778</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="section" style="padding-top:0;">
-        <div class="card" style="background:#EEEDFE;border-color:#CECBF6;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="goTo('s-ai')">
-          <div style="width:40px;height:40px;border-radius:50%;background:#534AB7;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-sparkles" style="color:#fff;font-size:20px;" aria-hidden="true"></i></div>
-          <div>
-            <div style="font-size:13px;font-weight:500;color:#3C3489;">Ask the investment guide</div>
-            <div style="font-size:12px;color:#534AB7;margin-top:2px;">Get answers on your FDs, tax, liquidity, and what to do next</div>
-          </div>
-          <i class="ti ti-arrow-right" style="color:#534AB7;font-size:18px;flex-shrink:0;" aria-hidden="true"></i>
-        </div>
-      </div>
-    </div>
-    <div class="bottom-nav">
-      <button class="nav-item active" onclick="goTo('s-home')"><i class="ti ti-home" aria-hidden="true"></i><span>Home</span></button>
-      <button class="nav-item" onclick="goTo('s-ai')"><i class="ti ti-sparkles" aria-hidden="true"></i><span>Guide</span></button>
-      <button class="nav-item" onclick="goTo('s-profile')"><i class="ti ti-user" aria-hidden="true"></i><span>Profile</span></button>
-    </div>
-  </div>
-
-  <!-- NOTIFICATIONS (merged: reminders + rate alerts) -->
-  <div class="screen" id="s-notif">
-    <div class="topbar">
-      <button class="back-btn" onclick="goTo('s-home')" aria-label="Back"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
-      <div><div class="topbar-title">Notifications</div><div class="topbar-sub" id="notif-sub">3 unread</div></div>
-      <button style="border:none;background:none;font-size:12px;color:#534AB7;font-weight:500;cursor:pointer;font-family:var(--font-sans);" onclick="markAllRead()">Mark all read</button>
-    </div>
-    <div class="toggle-row">
-      <button class="toggle-btn active" onclick="filterNotif(this,'all')">All</button>
-      <button class="toggle-btn" onclick="filterNotif(this,'rates')">Rate alerts</button>
-      <button class="toggle-btn" onclick="filterNotif(this,'maturity')">Maturity</button>
-    </div>
-    <div class="content" style="padding-bottom:20px;">
-      <div class="notif-item unread" id="n1" data-type="maturity" onclick="readNotif('n1');goTo('s-reinvest')">
-        <div class="notif-icon" style="background:#FAEEDA;"><i class="ti ti-clock" style="color:#854F0B;font-size:18px;" aria-hidden="true"></i></div>
-        <div style="flex:1;">
-          <div class="notif-title">SBI FD matures in 18 days</div>
-          <div class="notif-body">₹1,06,416 will be credited on 28 Jul. Reinvest now at 8.5% to earn ₹975 more than staying with SBI.</div>
-          <div class="notif-time">Today · 9:05 AM</div>
-        </div>
-        <div class="notif-unread-badge" id="n1-dot"></div>
-      </div>
-      <div class="notif-item unread" id="n2" data-type="rates" onclick="readNotif('n2')">
-        <div class="notif-icon" style="background:#EAF3DE;"><i class="ti ti-trending-up" style="color:#3B6D11;font-size:18px;" aria-hidden="true"></i></div>
-        <div style="flex:1;">
-          <div class="notif-title">Bajaj Finance raised rates to 8.5%</div>
-          <div class="notif-body">Up from 8.35% — now the best available for 18-month tenor. This affects your upcoming reinvestment.</div>
-          <div class="notif-time">Today · 8:42 AM</div>
-        </div>
-        <div class="notif-unread-badge" id="n2-dot"></div>
-      </div>
-      <div class="notif-item unread" id="n3" data-type="maturity" onclick="readNotif('n3');goTo('s-tax')">
-        <div class="notif-icon" style="background:#EEEDFE;"><i class="ti ti-receipt-tax" style="color:#534AB7;font-size:18px;" aria-hidden="true"></i></div>
-        <div style="flex:1;">
-          <div class="notif-title">Your FD interest is TDS-free this year</div>
-          <div class="notif-body">Total interest across all FDs is ₹14,820 — below the ₹40,000 limit. No Form 15G needed. See your tax summary.</div>
-          <div class="notif-time">Yesterday · 6:00 PM</div>
-        </div>
-        <div class="notif-unread-badge" id="n3-dot"></div>
-      </div>
-      <div class="notif-item" id="n6" data-type="rates">
-        <div class="notif-icon" style="background:#FAECE7;"><i class="ti ti-trending-down" style="color:#993C1D;font-size:18px;" aria-hidden="true"></i></div>
-        <div style="flex:1;">
-          <div class="notif-title">HDFC Bank rate dropped to 8.05%</div>
-          <div class="notif-body">Down 0.10% from yesterday. Doesn't affect your existing FD — your locked-in rate stays the same.</div>
-          <div class="notif-time">2 days ago</div>
-        </div>
-      </div>
-      <div class="notif-item" id="n4" data-type="trust">
-        <div class="notif-icon" style="background:#EAF3DE;"><i class="ti ti-shield-check" style="color:#3B6D11;font-size:18px;" aria-hidden="true"></i></div>
-        <div style="flex:1;">
-          <div class="notif-title">Your deposits are DICGC insured</div>
-          <div class="notif-body">Your SBI and HDFC FDs are insured up to ₹5 lakh per bank under DICGC — a Government of India scheme.</div>
-          <div class="notif-time">2 days ago</div>
-        </div>
-      </div>
-      <div class="notif-item" id="n5" data-type="maturity">
-        <div class="notif-icon" style="background:#EEEDFE;"><i class="ti ti-check" style="color:#534AB7;font-size:18px;" aria-hidden="true"></i></div>
-        <div style="flex:1;">
-          <div class="notif-title">Bajaj Finance FD booked</div>
-          <div class="notif-body">₹50,000 invested at 8.35% for 12 months. Matures 10 May 2026. Expected interest: ₹2,778.</div>
-          <div class="notif-time">51 days ago</div>
-        </div>
-      </div>
-
-      <div class="section-label" style="padding:16px 16px 8px;">Live rates · 1yr tenor</div>
-      <div style="padding:0 16px;">
-        <div class="rate-row"><div><div class="rate-bank">Bajaj Finance</div><div class="rate-tenor">12m · CRISIL AAA</div></div><div style="text-align:right;"><div class="rate-pct">8.50%</div><div class="rate-change">↑ +0.15% today</div></div></div>
-        <div class="rate-row"><div><div class="rate-bank">Shriram Finance</div><div class="rate-tenor">12m · ICRA AA+</div></div><div style="text-align:right;"><div class="rate-pct">8.40%</div><div class="rate-change">No change</div></div></div>
-        <div class="rate-row"><div><div class="rate-bank">HDFC Bank</div><div class="rate-tenor">12m · Govt. backed</div></div><div style="text-align:right;"><div class="rate-pct">8.05%</div><div class="rate-change down">↓ −0.10% today</div></div></div>
-        <div class="rate-row" style="border:none;"><div><div class="rate-bank">SBI</div><div class="rate-tenor">12m · Govt. backed</div></div><div style="text-align:right;"><div class="rate-pct">7.85%</div><div class="rate-change">No change</div></div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PROFILE -->
-  <div class="screen" id="s-profile">
-    <div class="topbar">
-      <button class="back-btn" onclick="goTo('s-home')" aria-label="Back"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
-      <div><div class="topbar-title">Profile</div></div>
-      <div style="width:32px;"></div>
-    </div>
-    <div class="content" style="padding-bottom:20px;">
-      <div class="profile-header">
-        <div class="profile-avatar">SR</div>
-        <div class="profile-name">Sruthi Rajan</div>
-        <div class="profile-sub">sruthi.rajan@gmail.com · Member since Jan 2025</div>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <div class="hero-pill">PAN verified</div>
-          <div class="hero-pill">KYC complete</div>
-        </div>
-      </div>
-
-      <div class="trust-row" style="margin-top:16px;">
-        <div class="trust-pill">
-          <i class="ti ti-shield-check" aria-hidden="true"></i>
-          <strong>DICGC insured</strong>
-          <span>Up to ₹5L per bank</span>
-        </div>
-        <div class="trust-pill">
-          <i class="ti ti-lock" aria-hidden="true"></i>
-          <strong>RBI regulated</strong>
-          <span>Banks and NBFCs</span>
-        </div>
-        <div class="trust-pill">
-          <i class="ti ti-certificate" aria-hidden="true"></i>
-          <strong>CRISIL rated</strong>
-          <span>AAA &amp; AA+ issuers</span>
-        </div>
-      </div>
-
-      <div class="profile-row" onclick="goTo('s-tax')">
-        <div class="profile-row-icon" style="background:#EEEDFE;"><i class="ti ti-receipt-tax" style="color:#534AB7;font-size:18px;" aria-hidden="true"></i></div>
-        <div style="flex:1;">
-          <div class="profile-row-title">FD tax calculator</div>
-          <div class="profile-row-sub">Calculate TDS liability and net interest based on your tax slab</div>
-        </div>
-        <i class="ti ti-arrow-right" style="color:var(--text-muted);font-size:16px;" aria-hidden="true"></i>
-      </div>
-      <div class="profile-row">
-        <div class="profile-row-icon" style="background:#EAF3DE;"><i class="ti ti-file-text" style="color:#3B6D11;font-size:18px;" aria-hidden="true"></i></div>
-        <div style="flex:1;">
-          <div class="profile-row-title">Download interest certificate</div>
-          <div class="profile-row-sub">For tax filing — FY 2024–25</div>
-        </div>
-        <i class="ti ti-arrow-right" style="color:var(--text-muted);font-size:16px;" aria-hidden="true"></i>
-      </div>
-      <div class="profile-row" onclick="goTo('s-notif')">
-        <div class="profile-row-icon" style="background:#EEEDFE;"><i class="ti ti-bell" style="color:#534AB7;font-size:18px;" aria-hidden="true"></i></div>
-        <div style="flex:1;">
-          <div class="profile-row-title">Notifications and rate alerts</div>
-          <div class="profile-row-sub">Maturity reminders, rate alerts, monthly snapshots</div>
-        </div>
-        <i class="ti ti-arrow-right" style="color:var(--text-muted);font-size:16px;" aria-hidden="true"></i>
-      </div>
-      <div class="profile-row" onclick="goTo('s-ai')">
-        <div class="profile-row-icon" style="background:#FAEEDA;"><i class="ti ti-help" style="color:#854F0B;font-size:18px;" aria-hidden="true"></i></div>
-        <div style="flex:1;">
-          <div class="profile-row-title">Help and support</div>
-          <div class="profile-row-sub">Chat with the AI guide or talk to a human agent</div>
-        </div>
-        <i class="ti ti-arrow-right" style="color:var(--text-muted);font-size:16px;" aria-hidden="true"></i>
-      </div>
-
-      <div style="padding:16px;">
-        <div class="dicgc-strip" style="flex-direction:column;align-items:flex-start;gap:8px;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div class="dicgc-icon"><i class="ti ti-shield-check" style="color:#fff;font-size:18px;" aria-hidden="true"></i></div>
-            <div>
-              <div class="dicgc-title">DICGC deposit insurance</div>
-              <div class="dicgc-body">Deposit Insurance and Credit Guarantee Corporation — Government of India</div>
+        <div class="body" style="padding-top:16px;">
+          <div class="seclbl">Your linked savings accounts</div>
+          <p class="detect-note">Balances shown with your consent via Account Aggregator. Not linked an account? You can enter an amount yourself &mdash; we never guess.</p>
+          <div class="linked">
+            <div class="acct" onclick="openBankFD('HDFC Bank',7.00,1.85)">
+              <div class="top"><span class="bk" style="background:#004C8F">HD</span><span class="nm">HDFC Bank</span></div>
+              <div class="bal num">₹1,85,000</div><div class="sub">Savings · ••4821</div>
+              <div class="gap">
+                <div class="gap-col"><span class="gl">Savings</span><span class="gv">3.0%</span></div>
+                <span class="gap-arrow">→</span>
+                <div class="gap-col"><span class="gl">HDFC FD</span><span class="gv up">7.0%</span></div>
+              </div>
+              <div class="acct-cta">Move to FD →</div>
+            </div>
+            <div class="acct" onclick="openBankFD('Axis Bank',7.10,1.35)">
+              <div class="top"><span class="bk" style="background:#97144D">AX</span><span class="nm">Axis Bank</span></div>
+              <div class="bal num">₹1,35,000</div><div class="sub">Savings · ••7390</div>
+              <div class="gap">
+                <div class="gap-col"><span class="gl">Savings</span><span class="gv">3.0%</span></div>
+                <span class="gap-arrow">→</span>
+                <div class="gap-col"><span class="gl">Axis FD</span><span class="gv up">7.1%</span></div>
+              </div>
+              <div class="acct-cta">Move to FD →</div>
             </div>
           </div>
-          <div style="border-top:0.5px solid #C0DD97;padding-top:10px;width:100%;">
-            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid #C0DD97;">
-              <span style="font-size:12px;color:#3B6D11;">SBI FD coverage</span>
-              <span style="font-size:12px;font-weight:500;color:#27500A;">₹1,00,000 ✓ covered</span>
+          <div class="seclbl">Your deposits</div>
+          <div class="card"><div class="pb"><div class="ic">UN</div><div class="m"><div class="n">Unity Small Finance</div><div class="s">7.25% · ₹25,000 · matures 24 Jun 2027</div></div><div class="a"><div class="v num">₹26,750</div><div class="d">on track</div></div></div>
+            <div class="reinvest-bar" onclick="openReinvest()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9 9 0 0 0-9 9zM3 3v6h6"/></svg><span>Reinvest in Unity in one tap, or compare other banks</span><span class="ri-go">→</span></div>
+          </div>
+          <div class="seclbl row"><span>Smart help</span><span class="aibadge">⚡ AI</span></div>
+          <div class="aientry" onclick="openAI()">
+            <div class="aientry-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.7 1.8L21.5 17l-1.8.7L19 19.5l-.7-1.8L16.5 17l1.8-.5z"/></svg></div>
+            <div class="aientry-tx">
+              <h4>Get fact-backed guidance</h4>
+              <p>Tell us your situation — our AI explains a sensible split in plain language, with every number sourced.</p>
             </div>
-            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid #C0DD97;">
-              <span style="font-size:12px;color:#3B6D11;">HDFC Bank FD coverage</span>
-              <span style="font-size:12px;font-weight:500;color:#27500A;">₹85,000 ✓ covered</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;padding:5px 0;">
-              <span style="font-size:12px;color:#3B6D11;">Bajaj Finance FD</span>
-              <span style="font-size:12px;font-weight:500;color:#854F0B;">NBFC — not DICGC</span>
-            </div>
-            <div style="font-size:11px;color:#3B6D11;margin-top:8px;line-height:1.4;">Bajaj Finance is CRISIL AAA rated — the highest credit rating — and regulated by RBI, offering a different but robust safety framework.</div>
+            <div class="aientry-go">→</div>
+          </div>
+          <div class="seclbl">Tools</div>
+          <div class="tools">
+            <div class="tool" onclick="openCalc()"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/></svg></div><div class="t">Returns<br>calculator</div></div>
+            <div class="tool" onclick="go('ladder')"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 21V5M11 21V9M17 21V13M3 5h4M9 9h4M15 13h4"/></svg></div><div class="t">Build a<br>ladder</div></div>
+            <div class="tool" onclick="go('liquidity')"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div><div class="t">Can I break<br>an FD?</div></div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAX CALCULATOR -->
-  <div class="screen" id="s-tax">
-    <div class="topbar">
-      <button class="back-btn" onclick="goTo('s-profile')" aria-label="Back"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
-      <div><div class="topbar-title">FD tax calculator</div><div class="topbar-sub">Based on your actual portfolio</div></div>
-      <div style="width:32px;"></div>
-    </div>
-    <div class="content screen-pad" style="padding-bottom:24px;">
-      <div class="section-label" style="padding:0 0 8px;">Your income tax slab</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
-        <button class="tax-slab-btn" onclick="setSlab(0)" id="sl0">Nil (exempt)</button>
-        <button class="tax-slab-btn active" onclick="setSlab(5)" id="sl5">5%</button>
-        <button class="tax-slab-btn" onclick="setSlab(20)" id="sl20">20%</button>
-        <button class="tax-slab-btn" onclick="setSlab(30)" id="sl30">30%</button>
-      </div>
-
-      <div class="section-label" style="padding:0 0 8px;">Interest earned across your FDs</div>
-      <div class="card" style="margin-bottom:16px;">
-        <div class="tax-row"><span class="tax-label">SBI FD (7.85% · 6 months)</span><span class="tax-val">₹6,416</span></div>
-        <div class="tax-row"><span class="tax-label">HDFC Bank FD (8.05% · 9 months)</span><span class="tax-val">₹5,626</span></div>
-        <div class="tax-row"><span class="tax-label">Bajaj Finance FD (8.35% · 2 months)</span><span class="tax-val">₹2,778</span></div>
-        <div class="tax-row" style="border-top:0.5px solid var(--border);margin-top:4px;padding-top:12px;">
-          <span class="tax-label" style="font-weight:500;color:var(--text-primary);">Total interest (FY 2025–26)</span>
-          <span class="tax-val" style="color:#534AB7;">₹14,820</span>
+        <div class="tb">
+          <div class="t on" onclick="tabGo('home',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</div>
+          <div class="t" onclick="tabGo('passbook',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v4H4zM4 10h16v10H4z"/></svg>Passbook</div>
+          <div class="t" onclick="tabGo('explore',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>Explore</div>
+          <div class="t" onclick="tabGo('profile',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</div>
         </div>
       </div>
 
-      <div class="section-label" style="padding:0 0 8px;">Tax summary</div>
-      <div style="background:#EAF3DE;border:0.5px solid #C0DD97;border-radius:12px;padding:16px;margin-bottom:10px;">
-        <div class="tax-row" style="border-color:#C0DD97;"><span class="tax-label" style="color:#3B6D11;">Total interest</span><span class="tax-val" style="color:#27500A;">₹14,820</span></div>
-        <div class="tax-row" style="border-color:#C0DD97;"><span class="tax-label" style="color:#3B6D11;">TDS threshold</span><span class="tax-val" style="color:#27500A;">₹40,000</span></div>
-        <div class="tax-row" style="border-color:#C0DD97;"><span class="tax-label" style="color:#3B6D11;">TDS deducted by bank</span><span class="tax-val" style="color:#27500A;">₹0</span></div>
-        <div class="tax-row" style="border:none;">
-          <span style="font-size:13px;font-weight:500;color:#27500A;">Tax you owe (at <span id="slab-pct">5</span>% slab)</span>
-          <span style="font-size:15px;font-weight:500;color:#27500A;" id="tax-owe">₹741</span>
-        </div>
-      </div>
-
-      <div class="card" style="background:#EEEDFE;border-color:#CECBF6;margin-top:4px;">
-        <div style="font-size:12px;font-weight:500;color:#3C3489;" id="tax-tip-title">No TDS this year</div>
-        <div style="font-size:12px;color:#534AB7;margin-top:4px;line-height:1.5;" id="tax-tip-body">Your total interest (₹14,820) is below the ₹40,000 TDS limit, so banks won't deduct anything. You still need to declare ₹14,820 as income and pay ₹741 tax while filing your ITR.</div>
-      </div>
-
-      <div style="margin-top:16px;">
-        <div class="section-label" style="padding:0 0 8px;">Net interest after tax</div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:16px;">
-          <div><div style="font-size:12px;color:var(--text-muted);">Gross interest</div><div style="font-size:20px;font-weight:500;color:var(--text-primary);margin-top:2px;">₹14,820</div></div>
-          <i class="ti ti-minus" style="color:var(--text-muted);" aria-hidden="true"></i>
-          <div style="text-align:center;"><div style="font-size:12px;color:var(--text-muted);">Tax payable</div><div style="font-size:20px;font-weight:500;color:#E24B4A;margin-top:2px;" id="tax-payable">₹741</div></div>
-          <i class="ti ti-equal" style="color:var(--text-muted);" aria-hidden="true"></i>
-          <div style="text-align:right;"><div style="font-size:12px;color:var(--text-muted);">Net income</div><div style="font-size:20px;font-weight:500;color:#3B6D11;margin-top:2px;" id="tax-net">₹14,079</div></div>
-        </div>
-      </div>
-
-      <button class="btn-secondary" style="margin-top:16px;" onclick="goTo('s-ai')"><i class="ti ti-sparkles" style="font-size:14px;vertical-align:-1px;margin-right:4px;" aria-hidden="true"></i>Ask the guide about taxes</button>
-    </div>
-  </div>
-
-  <!-- REINVESTMENT -->
-  <div class="screen" id="s-reinvest">
-    <div class="topbar">
-      <button class="back-btn" onclick="goTo('s-home')" aria-label="Back"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
-      <div style="text-align:center;"><div class="topbar-title">One-click reinvestment</div><div class="topbar-sub">₹1,06,416 maturing 28 Jul</div></div>
-      <div style="width:32px;"></div>
-    </div>
-    <div class="content screen-pad">
-      <div class="section-label" style="padding:0 0 10px;">Choose an option</div>
-      <div class="reinvest-option selected" id="opt-a" onclick="selectOpt('opt-a')">
-        <div style="display:flex;justify-content:space-between;align-items:center;"><div class="opt-title">Bajaj Finance FD</div><span class="badge" style="background:#EEEDFE;color:#3C3489;">Best rate</span></div>
-        <div class="opt-detail">18 months · 8.5% p.a. · CRISIL AAA</div>
-        <div class="opt-return">Maturity: ₹1,19,899 · Earn ₹13,483 interest</div>
-        <div style="font-size:11px;color:#854F0B;margin-top:4px;"><i class="ti ti-info-circle" style="font-size:11px;" aria-hidden="true"></i> NBFC — not DICGC insured, but CRISIL AAA rated</div>
-      </div>
-      <div class="reinvest-option" id="opt-b" onclick="selectOpt('opt-b')">
-        <div class="opt-title">SBI FD — same bank</div>
-        <div class="opt-detail">12 months · 7.85% p.a. · Govt. backed</div>
-        <div class="opt-return">Maturity: ₹1,14,758 · Earn ₹8,342 interest</div>
-        <div style="font-size:11px;color:#3B6D11;margin-top:4px;"><i class="ti ti-shield-check" style="font-size:11px;" aria-hidden="true"></i> DICGC insured up to ₹5 lakh</div>
-      </div>
-      <div class="reinvest-option" id="opt-c" onclick="selectOpt('opt-c')">
-        <div class="opt-title">HDFC Bank FD</div>
-        <div class="opt-detail">12 months · 8.05% p.a. · Large bank</div>
-        <div class="opt-return">Maturity: ₹1,14,982 · Earn ₹8,566 interest</div>
-        <div style="font-size:11px;color:#3B6D11;margin-top:4px;"><i class="ti ti-shield-check" style="font-size:11px;" aria-hidden="true"></i> DICGC insured up to ₹5 lakh</div>
-      </div>
-      <div style="margin-top:14px;">
-        <div class="field-label">Tenor: <strong id="tenor-label">18 months</strong></div>
-        <input type="range" min="6" max="60" value="18" step="6" oninput="updateTenor(this.value)">
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:4px;"><span>6m</span><span>2yr</span><span>3yr</span><span>5yr</span></div>
-      </div>
-      <div class="card" style="margin-top:14px;background:#EAF3DE;border-color:#C0DD97;">
-        <div style="font-size:12px;color:#3B6D11;font-weight:500;">Estimated maturity value</div>
-        <div style="font-size:22px;font-weight:500;color:#27500A;margin-top:4px;" id="maturity-val">₹1,19,899</div>
-        <div style="font-size:11px;color:#3B6D11;margin-top:2px;" id="maturity-sub">at 8.5% for 18 months</div>
-      </div>
-      <button class="btn-primary" style="margin-top:16px;" onclick="goTo('s-success')">Confirm reinvestment</button>
-    </div>
-  </div>
-
-  <!-- AI GUIDE -->
-  <div class="screen" id="s-ai">
-    <div class="topbar">
-      <button class="back-btn" onclick="goTo('s-home')" aria-label="Back"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:32px;height:32px;border-radius:50%;background:#534AB7;display:flex;align-items:center;justify-content:center;"><i class="ti ti-sparkles" style="color:#fff;font-size:16px;" aria-hidden="true"></i></div>
-        <div><div class="topbar-title">Investment guide</div><div class="topbar-sub" id="ai-status">Knows your portfolio · Ready to help</div></div>
-      </div>
-      <div style="width:32px;"></div>
-    </div>
-    <div class="chat-wrap">
-      <div class="quick-chips" id="quick-chips">
-        <div class="quick-chip" onclick="sendQuick('Should I break my SBI FD early?')">Break FD early?</div>
-        <div class="quick-chip" onclick="sendQuick('Will I have to pay TDS on my FDs?')">TDS on my FDs?</div>
-        <div class="quick-chip" onclick="sendQuick('Are my FDs safe? What is DICGC?')">Is my money safe?</div>
-        <div class="quick-chip" onclick="sendQuick('How should I reinvest my SBI FD maturing in 18 days?')">Reinvest advice</div>
-      </div>
-      <div class="chat-messages" id="chat-msgs">
-        <div class="msg ai">
-          <div class="msg-row">
-            <div class="ai-avatar"><i class="ti ti-sparkles" style="font-size:12px;" aria-hidden="true"></i></div>
-            <div class="msg-bubble">Hi Sruthi! I can see your portfolio — 3 active FDs totalling ₹2,35,000 at an average of 8.1%. Your SBI FD matures in 18 days. What would you like to know?</div>
+      <!-- RATE ALERT -->
+      <div class="view" data-view="ratealert">
+        <div class="sb"><span>9:41</span><span>5G 100%</span></div>
+        <div class="ab"><div class="bk" onclick="goBack()">←</div><span class="ti">Why we're telling you this</span></div>
+        <div class="body">
+          <div class="pgt">FD rates just got more attractive</div>
+          <div class="pgs">The RBI raised the repo rate. When that happens, banks usually raise FD rates within a few weeks to attract deposits.</div>
+          <div class="fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><p>This is a public event you can verify: <span class="src" onclick="showSrc('rbi')">RBI Monetary Policy statement, Jun 2026 →</span>. We're relaying a fact, not making a forecast.</p></div>
+          <div class="card pad">
+            <div class="fr"><span class="k">Repo rate</span><span class="v">↑ +0.25%</span></div>
+            <div class="fr"><span class="k">Top insured FD (then vs now)</span><span class="v">7.85% → <span style="color:var(--ok)">8.10%</span></span></div>
           </div>
-          <div class="msg-time" style="margin-left:31px;">Now</div>
+          <div class="fact" style="background:var(--warn-wash);border-color:var(--warn-line);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--warn)"><path d="M12 8v5M12 16h.01"/><circle cx="12" cy="12" r="9"/></svg><p style="color:#946011">When rates fall, this alert says so too — usually with no action needed.</p></div>
         </div>
+        <div class="foot"><button class="btn btn-pri" onclick="go('alloc')">Show me where to put more</button></div>
       </div>
-      <div class="chat-input-row">
-        <textarea class="chat-input" id="chat-input" placeholder="Ask anything about your FDs..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-        <button class="send-btn" id="send-btn" onclick="sendMessage()" aria-label="Send"><i class="ti ti-send" aria-hidden="true"></i></button>
-      </div>
-    </div>
-  </div>
 
-  <!-- SUCCESS -->
-  <div class="screen" id="s-success">
-    <div class="content" style="display:flex;flex-direction:column;">
-      <div class="success-screen">
-        <div class="success-icon"><i class="ti ti-check" aria-hidden="true"></i></div>
-        <div style="font-size:20px;font-weight:500;color:var(--text-primary);margin-bottom:8px;">FD booked!</div>
-        <div style="font-size:14px;color:var(--text-muted);line-height:1.5;">₹1,06,416 invested with Bajaj Finance at 8.5% for 18 months. Your money starts earning immediately.</div>
-        <div class="chip-row">
-          <div class="chip">Matures Jan 2027</div>
-          <div class="chip">Earn ₹13,483</div>
-          <div class="chip">CRISIL AAA</div>
+      <!-- ALLOCATION -->
+      <!-- BUFFER (emergency-fund / keep-accessible step — FR-1b) -->
+      <div class="view" data-view="buffer">
+        <div class="sb"><span>9:41</span><span>5G 100%</span></div>
+        <div class="ab"><div class="bk" onclick="goBack()">←</div><span class="ti">First, what to keep handy</span></div>
+        <div class="body">
+          <div class="pgt">Before anything, let's set aside what you might need</div>
+          <div class="pgs">You've got <b id="bufTotal">₹3,20,000</b> earning ~3%. We won't suggest moving all of it — some should stay within reach. How many months of expenses do you want to keep liquid?</div>
+          <div class="card pad">
+            <div class="field">
+              <div class="lb"><span class="k">Keep accessible</span><span class="v"><span id="bufMonths">3</span> months · <span id="bufAmtLbl" class="num">₹1,50,000</span></span></div>
+              <input type="range" id="bufS" min="0" max="6" step="1" value="3" oninput="renderBuffer()">
+              <div class="lb" style="margin-top:6px;color:var(--slate-l);font-size:11px;"><span>None</span><span>6 months</span></div>
+            </div>
+            <div class="bufsplit">
+              <div class="bufrow"><span class="bw" style="background:var(--ok)"></span><div class="bx"><h5>Stays accessible</h5><p>In savings, or a liquid FD that still earns ~6&ndash;7%</p></div><div class="bv num" id="bufKeep">₹1,50,000</div></div>
+              <div class="bufrow"><span class="bw" style="background:var(--pri)"></span><div class="bx"><h5>Free to put to work</h5><p>This is what we'll help you place in an FD</p></div><div class="bv num" id="bufDeploy">₹1,70,000</div></div>
+            </div>
+          </div>
+          <div class="fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><p>Keeping <b>3&ndash;6 months of expenses</b> within reach is the standard emergency-fund guidance. <span class="src" onclick="showSrc('buffer')">Why this rule →</span> You can keep that buffer in a <b>liquid FD</b> — it stays withdrawable on demand and still earns far more than savings.</p></div>
+          <p class="reass">We ask this <i>before</i> suggesting any amount — your safety net comes first, always.</p>
         </div>
-        <div class="card" style="margin-top:20px;width:100%;background:#EEEDFE;border-color:#CECBF6;">
-          <div style="font-size:12px;color:#534AB7;font-weight:500;">What's next?</div>
-          <div style="font-size:12px;color:#534AB7;margin-top:4px;line-height:1.5;">You now have 3 active FDs. Add ₹64,584 more to start building towards your ₹3L corpus goal.</div>
-        </div>
-        <button class="btn-primary" style="margin-top:20px;" onclick="goTo('s-home')">Back to dashboard</button>
+        <div class="foot"><button class="btn btn-pri" onclick="go('alloc')">Continue with <span id="bufCtaAmt" class="num">₹1,70,000</span></button></div>
       </div>
+
+      <!-- ALLOC -->
+      <div class="view" data-view="alloc">
+        <div class="sb"><span>9:41</span><span>5G 100%</span></div>
+        <div class="ab"><div class="bk" onclick="goBack()">←</div><span class="ti">A suggested split</span></div>
+        <div class="body">
+          <div class="pgt">For <span id="allocAmt" class="num">₹1,70,000</span>, a balanced way to start</div>
+          <div class="pgs">This is how many cautious investors structure it — most in a top-safety bank, a portion laddered so cash frees up. Drag to change it.</div>
+          <div class="card pad">
+            <div class="alloc-wrap">
+              <div class="donut">
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="48" fill="none" stroke="var(--neon)" stroke-width="20"/>
+                  <circle id="donutArc" cx="60" cy="60" r="48" fill="none" stroke="var(--pri)" stroke-width="20" stroke-dasharray="211 301" />
+                </svg>
+                <div class="ctr"><div class="a num" id="dPct">70%</div><div class="b">top-safety</div></div>
+              </div>
+              <div class="alloc-leg">
+                <div class="row"><span class="sw" style="background:var(--pri)"></span><div class="tx"><h5>Top-safety bank</h5><p>Bulk, at the best insured rate</p><div class="amt num" id="legSafe">₹70,000</div></div></div>
+                <div class="row"><span class="sw" style="background:var(--neon-d)"></span><div class="tx"><h5>Laddered</h5><p>Staggered tenures, stays liquid</p><div class="amt num" id="legLad">₹30,000</div></div></div>
+              </div>
+            </div>
+            <div class="field" style="margin-top:10px;">
+              <div class="lb"><span class="k">Adjust the split</span><span class="v"><span id="splitVal">70</span>% safe</span></div>
+              <input type="range" id="splitS" min="40" max="100" step="5" value="70" oninput="renderAlloc()">
+            </div>
+          </div>
+          <div class="fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><p>The "split across tenures and safety" idea isn't ours — it's <b>standard FD laddering</b>, described by banks and the RBI alike. <span class="src" onclick="showSrc('ladder')">See the principle →</span> We just make it one tap instead of a spreadsheet.</p></div>
+          <p class="reass">Adjust the split anytime — these are suggestions, not fixed amounts.</p>
+        </div>
+        <div class="foot"><button class="btn btn-pri" onclick="go('compare')">See banks for this split</button></div>
+      </div>
+
+      <!-- COMPARE -->
+      <div class="view" data-view="compare">
+        <div class="sb"><span>9:41</span><span>5G 100%</span></div>
+        <div class="ab"><div class="bk" onclick="goBack()">←</div><span class="ti">Where to put it</span></div>
+        <div class="body">
+          <div class="pgt">Insured banks, compared honestly</div>
+          <div class="pgs" id="cmpSub">Live rates for the top-safety portion (₹70,000), sorted. Your savings banks are shown for comparison.</div>
+          <div class="bankfilter">
+            <div class="bf on" data-c="all" onclick="filterCat('all',this)">All banks</div>
+            <div class="bf" data-c="inst" onclick="filterCat('inst',this)">Top institutional</div>
+            <div class="bf" data-c="sfb" onclick="filterCat('sfb',this)">Small finance</div>
+          </div>
+          <div class="sortbar" style="margin-top:8px;"><div class="sc on" data-s="rate" onclick="sortB('rate',this)">Highest rate</div><div class="sc" data-s="safety" onclick="sortB('safety',this)">Safest rating</div><div class="sc" data-s="aftertax" onclick="sortB('aftertax',this)">Most after tax</div></div>
+          <div id="bankList" style="display:flex;flex-direction:column;gap:10px;"></div>
+          <div class="disclose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><p><b>How we earn:</b> Stable Money receives a commission from the bank on any booking. The rate you see is the same you'd get directly.</p></div>
+          <p class="reass">Every rating links to its agency; every rate is checkable. Tap a bank to choose it.</p>
+          <div class="stale-toggle" onclick="toggleStale()">Demo: simulate a rate-feed outage</div>
+        </div>
+      </div>
+
+      <!-- CONFIRM -->
+      <div class="view" data-view="confirm">
+        <div class="sb"><span>9:41</span><span>5G 100%</span></div>
+        <div class="ab"><div class="bk" onclick="goBack()">←</div><span class="ti">Confirm — and check the math</span></div>
+        <div class="body">
+          <div class="pgt" id="confTitle">New FD · Suryoday Small Finance</div>
+          <div class="pgs">Here's exactly what you'll earn and keep, after tax.</div>
+          <div class="card pad">
+            <div class="fr"><span class="k">Amount</span><span class="v num" id="cAmt">₹70,000</span></div>
+            <div class="fr"><span class="k">Rate (1 year)</span><span class="v pos num" id="cRate">8.10%</span></div>
+            <div class="fr"><span class="k">Interest (before tax)</span><span class="v num" id="cInt">₹5,670</span></div>
+            <div class="fr"><span class="k" id="cTaxK">Less ~20% tax on interest</span><span class="v num" id="cTax">−₹1,134</span></div>
+            <div class="fr big"><span class="k">You keep, after tax</span><span class="v pos num" id="cKeep">₹4,536</span></div>
+          </div>
+          <div class="fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><p>₹70,000 × 8.10% = ₹5,670 interest, taxed at your slab. <span class="src" onclick="showSrc('tax')">FD interest is taxed at your slab →</span></p></div>
+          <div class="card pad">
+            <div class="trust"><div class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div><div class="t"><h5>Insured by DICGC to ₹5,00,000</h5><p>A government guarantee, per bank. <span class="src" onclick="showSrc('dicgc')" style="color:var(--fact);font-weight:700;cursor:pointer;">Verify at dicgc.org.in →</span></p></div></div>
+            <div class="trust"><div class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div><div class="t"><h5 id="cSafety">Suryoday · ICRA A (Adequate safety)</h5><p>RBI-licensed small finance bank. <span class="src" onclick="showSrc('rating')" style="color:var(--fact);font-weight:700;cursor:pointer;">Check the rating →</span></p></div></div>
+            <div class="trust"><div class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div><div class="t"><h5>Break or switch anytime</h5><p>Principal stays safe; only a small rate trim if you exit early.</p></div></div>
+          </div>
+          <p class="reass">Every number above, and its source, is shown before you commit.</p>
+          <p class="disclaimer">Stable Money is a deposit distributor, not an investment adviser. This is general information to help you choose, not personalised investment advice &mdash; the decision is yours. FDs are subject to the issuing bank&rsquo;s terms; insurance cover is provided by DICGC up to &#8377;5,00,000 per bank.</p>
+        </div>
+        <div class="foot"><button class="btn btn-pri" onclick="go('success')">Confirm — this is my choice</button><button class="btn btn-gh" onclick="go('compare')">Compare other banks</button></div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="view" data-view="success">
+        <div class="sb"><span>9:41</span><span>5G 100%</span></div>
+        <div class="succ">
+          <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg></div>
+          <h2>Your second FD is booked</h2>
+          <span class="youdid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><path d="M5 13l4 4L19 7"/></svg> Booked</span>
+          <p id="succMsg">Your ₹70,000 is now in an 8.10% insured FD, up from 3% in savings. The laddered portion frees up every 3 months.</p>
+          <div class="card pad"><div class="fr"><span class="k">New FD</span><span class="v" id="succBank">Suryoday · 8.10%</span></div><div class="fr"><span class="k">Laddered portion</span><span class="v">set up · frees up every 3 mo</span></div><div class="fr"><span class="k">Future decisions</span><span class="v" style="color:var(--pri)">we'll bring them to you</span></div></div>
+          <button class="restart" onclick="tabGo('home')">↺ Back to home</button>
+        </div>
+      </div>
+
+      <!-- LIQUIDITY -->
+      <div class="view" data-view="liquidity">
+        <div class="sb"><span>9:41</span><span>5G 100%</span></div>
+        <div class="ab"><div class="bk" onclick="goBack()">←</div><span class="ti">Can I break an FD?</span></div>
+        <div class="body">
+          <div class="pgt">Yes — and your principal is never at risk</div>
+          <div class="pgs">Half of people think breaking an FD eats their savings. It doesn't. Here's the truth on ₹1,00,000.</div>
+          <div class="card pad"><div class="fr"><span class="k">Your principal</span><span class="v" style="color:var(--ok)">Always 100% safe</span></div><div class="fr"><span class="k">If you break early</span><span class="v">Rate trimmed ~0.5–1%</span></div><div class="fr"><span class="k">Penalty on principal</span><span class="v" style="color:var(--ok)">₹0</span></div></div>
+          <div class="fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><p>This follows the standard premature-withdrawal rule. <span class="src" onclick="showSrc('break')">How early-withdrawal penalties work →</span> Laddering avoids it almost entirely — something always matures soon.</p></div>
+          <p class="reass">This is what the app should tell you up front. Now you know.</p>
+        </div>
+        <div class="foot"><button class="btn btn-pri" onclick="go('alloc')">Okay — show me the split again</button></div>
+      </div>
+
+      <!-- CALCULATOR -->
+      <div class="view" data-view="calc">
+        <div class="sb"><span>9:41</span><span>5G 100%</span></div>
+        <div class="ab"><div class="bk" onclick="goBack()">←</div><span class="ti">Returns calculator</span></div>
+        <div class="body">
+          <div class="card pad" style="background:linear-gradient(150deg,var(--pri),var(--pri-d));color:#fff;">
+            <div style="font-size:12px;opacity:.85;">After-tax value at maturity</div>
+            <div class="num" id="calcMat" style="font-size:32px;font-weight:800;margin-top:3px;">₹1,06,480</div>
+            <div style="display:flex;margin-top:13px;border-top:1px solid rgba(255,255,255,.2);padding-top:12px;gap:10px;">
+              <div style="flex:1;"><div style="font-size:10.5px;opacity:.8;">You invest</div><div class="num" id="calcAmtL2" style="font-size:15px;font-weight:700;">₹1,00,000</div></div>
+              <div style="flex:1;"><div style="font-size:10.5px;opacity:.8;">Interest, after tax</div><div class="num" id="calcInt" style="font-size:15px;font-weight:700;color:var(--neon);">₹6,480</div></div>
+            </div>
+          </div>
+          <div class="card pad">
+            <div class="field"><div class="lb"><span class="k">Amount</span><span class="v num" id="calcAmtL">₹1,00,000</span></div><input type="range" id="calcAmtS" min="25000" max="500000" step="5000" value="100000" oninput="renderCalc()"></div>
+            <div class="field" style="margin-top:12px;"><div class="lb"><span class="k">Tenure</span><span class="v" id="calcTenL">1 year</span></div>
+              <div class="sortbar" id="calcTen"><div class="sc" data-m="6" onclick="setTen(6,this)">6 mo</div><div class="sc on" data-m="12" onclick="setTen(12,this)">1 yr</div><div class="sc" data-m="24" onclick="setTen(24,this)">2 yr</div><div class="sc" data-m="36" onclick="setTen(36,this)">3 yr</div></div></div>
+          </div>
+          <div class="fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><p id="calcFact">Compounded annually at 8.10%, taxed at a 20% slab. Every input is yours to change; the math is shown so you can trust it.</p></div>
+        </div>
+        <div class="foot"><button class="btn btn-pri" onclick="go('compare')">Use this to pick a bank</button></div>
+      </div>
+
+      <!-- LADDER -->
+      <div class="view" data-view="ladder">
+        <div class="sb"><span>9:41</span><span>5G 100%</span></div>
+        <div class="ab"><div class="bk" onclick="goBack()">←</div><span class="ti">Build a ladder</span></div>
+        <div class="body">
+          <div class="pgt">Your first FD is rung one</div>
+          <div class="pgs">Spread money across staggered dates so a piece frees up regularly — and each rung brings the next decision to you, automatically. That's how the first FD becomes a plan.</div>
+          <div class="card pad">
+            <div class="ladvis" id="ladVis"></div>
+            <div class="field" style="margin-top:6px;"><div class="lb"><span class="k">Amount to ladder</span><span class="v num" id="ladTot">₹1,00,000</span></div><input type="range" id="ladS" min="50000" max="400000" step="10000" value="100000" oninput="renderLad()"></div>
+          </div>
+          <div class="seclbl">Your rungs</div>
+          <div id="rungL"></div>
+          <div class="fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><p>Each rung's maturity becomes a future prompt like the rate alert — laddering manufactures the return moments. <span class="src" onclick="showSrc('ladder')">The strategy, sourced →</span></p></div>
+        </div>
+        <div class="foot"><button class="btn btn-pri" onclick="go('success')">Confirm — build this ladder</button></div>
+      </div>
+
+      <!-- AI GUIDANCE (the value-add, its own screen) -->
+      <div class="view" data-view="aiguide">
+        <div class="sb dk"><span>9:41</span><span>5G 100%</span></div>
+        <div class="ai-hero">
+          <div class="ab" style="padding:4px 0 10px;"><div class="bk" onclick="goBack()" style="background:rgba(255,255,255,.16);border:none;color:#fff;">←</div><span class="ti" style="color:#fff;">AI Guidance</span></div>
+          <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg> AI-GENERATED · FACT-BACKED</div>
+          <h2>A plain-language plan for your money</h2>
+          <p>Tell us the situation. We'll suggest a sensible split, with every number sourced.</p>
+        </div>
+        <div class="body">
+          <div class="card pad">
+            <div class="ai-field"><div class="lb"><span>Amount to invest</span><span class="v num" id="aiAmtV">₹1,00,000</span></div>
+              <input type="range" id="aiAmt" min="25000" max="500000" step="5000" value="100000" oninput="document.getElementById('aiAmtV').textContent='₹'+(+this.value).toLocaleString('en-IN')"></div>
+            <div class="ai-field"><div class="lb"><span>Age band</span></div>
+              <div class="ai-seg" id="aiAge"><button class="on" data-a="young" onclick="aiSeg('aiAge','age','young',this)">Under 60</button><button data-a="senior" onclick="aiSeg('aiAge','age','senior',this)">Senior (60+)</button></div></div>
+            <div class="ai-field"><div class="lb"><span>Tax slab</span></div>
+              <div class="ai-seg" id="aiTax"><button data-t="0" onclick="aiSeg('aiTax','tax',0,this)">No tax</button><button class="on" data-t="0.2" onclick="aiSeg('aiTax','tax',0.2,this)">20%</button><button data-t="0.3" onclick="aiSeg('aiTax','tax',0.3,this)">30%</button></div></div>
+            <div class="ai-field"><div class="lb"><span>What matters most?</span></div>
+              <div class="ai-seg" id="aiGoal"><button class="on" data-g="balance" onclick="aiSeg('aiGoal','goal','balance',this)">Balance</button><button data-g="liquidity" onclick="aiSeg('aiGoal','goal','liquidity',this)">Liquidity</button><button data-g="returns" onclick="aiSeg('aiGoal','goal','returns',this)">Max returns</button></div></div>
+            <button class="btn btn-pri" style="margin-top:4px;" onclick="aiGenerate()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg> Generate guidance</button>
+          </div>
+          <div class="seclbl">Generated guidance</div>
+          <div class="ai-out" id="aiOut"><div class="ai-placeholder">Set the situation above and tap <b>Generate</b>.<br>The AI composes a sourced, plain-language plan — the way a good advisor frames a mutual-fund split, but for FDs, every number checkable.</div></div>
+          <div class="fact" style="margin-top:11px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><p>Every figure here is grounded in a named source you can open. <span class="src" onclick="showSrc('ladder')">How this works →</span></p></div>
+        </div>
+      </div>
+
+      <!-- PASSBOOK -->
+      <div class="view" data-view="passbook">
+        <div class="sb dk"><span>9:41</span><span>5G 100%</span></div>
+        <div class="sm-hero" style="padding-bottom:18px;">
+          <div class="sm-port" style="margin-top:2px;"><div class="l">Total invested</div><div class="v num">₹26,750</div><div class="l" style="margin-top:4px;">across 1 active deposit · earning ₹1,750/yr</div></div>
+        </div>
+        <div class="body" style="padding-top:16px;">
+          <div class="seclbl">Active deposits</div>
+          <div class="card"><div class="pb"><div class="ic">UN</div><div class="m"><div class="n">Unity Small Finance</div><div class="s">7.25% · 1 year · matures 24 Jun 2027</div></div><div class="a"><div class="v num">₹25,000</div><div class="d">your first FD</div></div></div></div>
+          <div class="card" style="margin-top:2px;"><div class="pb"><div class="ic" style="background:var(--ok-wash);color:var(--ok);">★</div><div class="m"><div class="n">Your next step</div><div class="s">Idle savings still earning ~3%</div></div><div class="a"><div class="v num" style="color:var(--pri);cursor:pointer;" onclick="tabGo('home',document.querySelectorAll('#screen .tb .t')[0]);go('alloc')">Invest →</div></div></div></div>
+          <div class="seclbl">Maturity timeline</div>
+          <div class="card pad">
+            <div class="fr"><span class="k">24 Jun 2027</span><span class="v">Unity FD matures · ₹26,750</span></div>
+            <div class="fr"><span class="k">After maturity</span><span class="v" style="color:var(--slate-l);">no plan yet</span></div>
+            <div class="fact" style="margin-top:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><p>A single deposit maturing in 2027 leaves long gaps. <span class="src" onclick="go('ladder')">Build a ladder →</span> so money frees up regularly.</p></div>
+          </div>
+        </div>
+        <div class="tb">
+          <div class="t" onclick="tabGo('home',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</div>
+          <div class="t on" onclick="tabGo('passbook',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v4H4zM4 10h16v10H4z"/></svg>Passbook</div>
+          <div class="t" onclick="tabGo('explore',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>Explore</div>
+          <div class="t" onclick="tabGo('profile',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</div>
+        </div>
+      </div>
+
+      <!-- EXPLORE -->
+      <div class="view" data-view="explore">
+        <div class="sb"><span>9:41</span><span>5G 100%</span></div>
+        <div class="ab"><span class="ti" style="padding-left:4px;">Explore</span></div>
+        <div class="body">
+          <div class="seclbl">Top insured FD rates today</div>
+          <div class="card pad" style="padding-bottom:6px;">
+            <div class="fr" style="padding-top:4px;"><span class="k">Suryoday Small Finance · ICRA A</span><span class="v pos">8.10%</span></div>
+            <div class="fr"><span class="k">Utkarsh Small Finance · CRISIL A+</span><span class="v pos">8.10%</span></div>
+            <div class="fr"><span class="k">Shivalik Small Finance · CRISIL A</span><span class="v pos">7.80%</span></div>
+            <div class="fr"><span class="k">Unity Small Finance · ICRA A</span><span class="v">7.25%</span></div>
+          </div>
+          <div class="fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><p>Live rates across 200+ partner banks, every one DICGC-insured to ₹5L. <span class="src" onclick="showSrc('rate')">Source →</span></p></div>
+          <div class="seclbl">Learn</div>
+          <div class="card"><div class="pb" style="cursor:pointer;" onclick="go('liquidity')"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg></div><div class="m"><div class="n">Can I break an FD early?</div><div class="s">The truth about liquidity</div></div><div class="a"><div class="v" style="color:var(--pri);">→</div></div></div></div>
+          <div class="card" style="margin-top:2px;"><div class="pb" style="cursor:pointer;" onclick="go('ladder')"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M5 21V5M11 21V9M17 21V13"/></svg></div><div class="m"><div class="n">What is FD laddering?</div><div class="s">Make your money free up regularly</div></div><div class="a"><div class="v" style="color:var(--pri);">→</div></div></div></div>
+          <div class="card" style="margin-top:2px;"><div class="pb" style="cursor:pointer;" onclick="openCalc()"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2M8 16h2"/></svg></div><div class="m"><div class="n">Returns calculator</div><div class="s">See your after-tax maturity value</div></div><div class="a"><div class="v" style="color:var(--pri);">→</div></div></div></div>
+        </div>
+        <div class="tb">
+          <div class="t" onclick="tabGo('home',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</div>
+          <div class="t" onclick="tabGo('passbook',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v4H4zM4 10h16v10H4z"/></svg>Passbook</div>
+          <div class="t on" onclick="tabGo('explore',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>Explore</div>
+          <div class="t" onclick="tabGo('profile',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</div>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="view" data-view="profile">
+        <div class="sb dk"><span>9:41</span><span>5G 100%</span></div>
+        <div class="sm-hero" style="padding-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:13px;margin-top:4px;">
+            <div class="sm-av" style="width:52px;height:52px;font-size:20px;">P</div>
+            <div><div style="color:#fff;font-size:18px;font-weight:800;">Priya Sharma</div><div style="color:#CFC8E8;font-size:12px;margin-top:2px;">KYC verified · since Mar 2026</div></div>
+          </div>
+        </div>
+        <div class="body" style="padding-top:16px;">
+          <div class="seclbl">Your tax profile</div>
+          <div class="card pad">
+            <div class="fr" style="padding-top:2px;"><span class="k">Income-tax slab</span><span class="v">20%</span></div>
+            <div class="fr"><span class="k">Age band</span><span class="v">Under 60</span></div>
+            <div class="fact" style="margin-top:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><p>We use this to show every return <b>after tax</b> — never a pre-tax headline. <span class="src" onclick="showSrc('tax')">How FD tax works →</span></p></div>
+          </div>
+          <div class="seclbl">Preferences</div>
+          <div class="card">
+            <div class="pb"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg></div><div class="m"><div class="n">Rate Radar alerts</div><div class="s">Notify me when RBI moves rates</div></div><div class="a"><div class="v" style="color:var(--ok);">On</div></div></div>
+          </div>
+          <div class="card" style="margin-top:2px;">
+            <div class="pb"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg></div><div class="m"><div class="n">DICGC insurance</div><div class="s">All deposits insured to ₹5L</div></div><div class="a"><div class="v src" style="color:var(--fact);" onclick="showSrc('dicgc')">Verify</div></div></div>
+          </div>
+        </div>
+        <div class="tb">
+          <div class="t" onclick="tabGo('home',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</div>
+          <div class="t" onclick="tabGo('passbook',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v4H4zM4 10h16v10H4z"/></svg>Passbook</div>
+          <div class="t" onclick="tabGo('explore',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>Explore</div>
+          <div class="t on" onclick="tabGo('profile',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
+<div class="hint">Every screen is real and clickable. <b>Start at the home dashboard</b> — the idle-cash prompt re-engages a first-timer in-window; the guided split gives a beginner a model; the comparison shows every fact and lets <b>you</b> pick; the confirm shows the math. Tap the green <b>fact chips</b> to see sources. The customer-first rate alert (bell, top-right) is the secondary entry.</div>
+
+<!-- floating production-sourcing tooltip (presenter cue on hover) -->
+<div id="tip"></div>
+<div id="toast"></div>
+
+<!-- source modal (looks like the live app's "verified source" panel) -->
+<div id="srcModal" style="display:none;position:fixed;inset:0;background:rgba(26,22,38,.5);z-index:200;align-items:center;justify-content:center;padding:24px;" onclick="closeSrc(event)">
+  <div style="background:#fff;border-radius:18px;max-width:380px;padding:24px;box-shadow:0 30px 70px rgba(0,0,0,.3);">
+    <div style="display:flex;gap:9px;align-items:center;margin-bottom:4px;"><span style="width:30px;height:30px;border-radius:8px;background:var(--fact-wash);color:var(--fact);display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span><b style="font-size:14px;" id="srcTitle">Source</b></div>
+    <div style="display:flex;align-items:center;gap:6px;margin:6px 0 12px;"><span style="font-size:10.5px;font-weight:700;color:var(--fact);background:var(--fact-wash);padding:3px 8px;border-radius:6px;">✓ VERIFIED</span><span style="font-size:11px;color:var(--slate-l);" id="srcMeta">as of Jun 2026</span></div>
+    <p style="font-size:13px;line-height:1.6;color:var(--ink-2);" id="srcBody"></p>
+    <a id="srcLink" href="#" onclick="return false;" style="display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:13px;font-weight:700;color:var(--pri);text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6v6M10 14L20 4"/></svg><span id="srcLinkLabel">Open source</span></a>
+    <button class="btn btn-pri" style="margin-top:16px;" onclick="closeSrc(event,true)">Close</button>
+  </div>
+</div>
 <script>
-const PORTFOLIO_CONTEXT=`You are an AI investment guide inside Stable Money, a fixed deposit investment app. You are warm, concise, and specific — like a knowledgeable friend, not a financial advisor. Never give generic disclaimers. Always refer to the user's actual portfolio.
+  // ===== state (seeded real Jun-2026 values) =====
+  var SLAB=0.2;              // typical 20% slab, from profile in live app
+  var IDLE=320000;           // total idle cash detected/entered across linked accounts
+  var BUFFER=150000;         // emergency-fund buffer the user keeps accessible
+  var TOTAL=100000;          // amount actually being deployed (IDLE - BUFFER), set on buffer screen
+  var splitSafe=0.70;        // allocation to top-safety bank
+  var inr=function(n){return '\u20b9'+Math.round(n).toLocaleString('en-IN');};
 
-User: Sruthi
-Portfolio:
-1. SBI Fixed Deposit — ₹1,00,000 at 7.85% p.a., matures 28 Jul 2025 (18 days away). Interest: ₹6,416. Maturity value: ₹1,06,416.
-2. HDFC Bank FD — ₹85,000 at 8.05% p.a., matures 3 Mar 2026. Interest: ₹5,626.
-3. Bajaj Finance FD — ₹50,000 at 8.35% p.a., matures 10 May 2026. Interest: ₹2,778.
-Total invested: ₹2,35,000. Avg rate: 8.1%. Total interest: ₹14,820.
+  var BANKS=[
+    {nm:'Suryoday Small Finance',ab:'SU',col:'#E8743B',rate:8.10,rating:'ICRA A',mean:'Adequate safety · RBI-licensed SFB · DICGC-insured',safety:3,agency:'ICRA',cat:'sfb'},
+    {nm:'Utkarsh Small Finance',ab:'UT',col:'#5A31F4',rate:8.10,rating:'CRISIL A+',mean:'Good safety, a notch above A · DICGC-insured',safety:4,agency:'CRISIL',cat:'sfb'},
+    {nm:'Shivalik Small Finance',ab:'SH',col:'#1F9D6B',rate:7.80,rating:'CRISIL A',mean:'Adequate safety · DICGC-insured',safety:3,agency:'CRISIL',cat:'sfb'},
+    {nm:'HDFC Bank',ab:'HD',col:'#004C8F',rate:7.00,rating:'CRISIL AAA',mean:'Highest safety · your savings bank · DICGC-insured',safety:6,agency:'CRISIL',cat:'inst',yourbank:true},
+    {nm:'Axis Bank',ab:'AX',col:'#97144D',rate:7.10,rating:'CRISIL AAA',mean:'Highest safety · your savings bank · DICGC-insured',safety:6,agency:'CRISIL',cat:'inst',yourbank:true},
+    {nm:'Unity Small Finance',ab:'UN',col:'#9A94A6',rate:7.25,rating:'ICRA A',mean:'Your current FD bank · adequate safety',safety:3,agency:'ICRA',cat:'sfb',current:true}
+  ];
+  var bankCat='all'; // all | inst | sfb
+  function afterTax(x){return x*(1-SLAB);}
+  function taxPct(){return Math.round(SLAB*100);}
 
-DICGC info: SBI and HDFC FDs are DICGC insured up to ₹5 lakh per bank. Bajaj Finance is an NBFC — not DICGC insured but CRISIL AAA rated and RBI regulated.
-TDS: Total interest ₹14,820 is below ₹40,000 threshold — no TDS deducted. Still taxable as income per slab.
-Current market rates: Bajaj Finance 8.5% (18m, CRISIL AAA), Shriram 8.4% (12m), HDFC 8.05% (12m), SBI 7.85% (12m).
+  // ===== nav =====
+  // ===== navigation with a real history stack =====
+  // navStack records the actual path taken, so the back arrow returns to
+  // wherever the user truly came from (not a hardcoded screen).
+  var navStack=[]; var curView='home';
+  function showView(v){var s=document.getElementById('screen');s.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});s.querySelector('[data-view="'+v+'"]').classList.add('active');s.querySelectorAll('.view').forEach(function(x){x.scrollTop=0;});closeNotif();
+    if(v==='compare')renderBanks();if(v==='calc')renderCalc();if(v==='ladder')renderLad();if(v==='alloc')renderAlloc();if(v==='buffer')renderBuffer();
+    curView=v;}
+  // forward navigation: remember where we were, then show the new screen
+  function go(v){ if(v!==curView) navStack.push(curView); showView(v); }
+  // back navigation: pop the real previous screen (fall back to home)
+  function goBack(){ var prev=navStack.pop(); showView(prev||'home'); }
+  function toggleNotif(){document.getElementById('notif').classList.toggle('show');}
+  function closeNotif(){var n=document.getElementById('notif');if(n)n.classList.remove('show');}
+  // bottom tab bar — top-level navigation, resets the back history
+  function tabGo(v,el){navStack=[];showView(v);}
+  function resetFlow(){IDLE=320000;BUFFER=150000;TOTAL=IDLE-BUFFER;splitSafe=0.70;var s=document.getElementById('splitS');if(s)s.value=70;var b=document.getElementById('bufS');if(b)b.value=3;}
+  // ===== buffer (emergency-fund) =====
+  // monthly expense proxy: buffer months map to amounts; assume ~₹50,000/month for the seeded persona
+  var MONTHLY=50000;
+  function renderBuffer(){
+    var months=+document.getElementById('bufS').value;
+    BUFFER=Math.min(months*MONTHLY, IDLE);
+    TOTAL=Math.max(IDLE-BUFFER, 0);
+    document.getElementById('bufMonths').textContent=months;
+    document.getElementById('bufTotal').textContent=inr(IDLE);
+    document.getElementById('bufAmtLbl').textContent=inr(BUFFER);
+    document.getElementById('bufKeep').textContent=inr(BUFFER);
+    document.getElementById('bufDeploy').textContent=inr(TOTAL);
+    var cta=document.getElementById('bufCtaAmt'); if(cta)cta.textContent=inr(TOTAL);
+    // keep alloc slider in sync downstream
+    var s=document.getElementById('splitS'); if(s){splitSafe=+s.value/100;}
+  }
+  // move savings -> that bank's own FD (opens comparison on institutional tier, amount = balance)
+  function openBankFD(bank,rate,lakhs){
+    TOTAL=lakhs*100000; splitSafe=1; // whole balance, single FD
+    go('compare');
+    setTimeout(function(){var el=document.querySelector('#screen [data-view=compare] .bf[data-c=inst]');if(el)filterCat('inst',el);
+      document.getElementById('cmpSub').textContent='Your '+bank+' savings ('+inr(lakhs*100000)+') could move to '+bank+'\u2019s FD at '+rate.toFixed(2)+'% — or compare other insured banks below. You choose.';},60);
+  }
+  // reinvest the current FD — same bank one-tap, or compare out
+  function openReinvest(){
+    TOTAL=26750; splitSafe=1;
+    go('compare');
+    setTimeout(function(){var el=document.querySelector('#screen [data-view=compare] .bf[data-c=all]');if(el)filterCat('all',el);
+      document.getElementById('cmpSub').textContent='Reinvest your matured Unity FD (\u20b926,750): book again with Unity at 7.25%, or compare better insured rates below.';},60);
+  }
+  function openRateAlert(){closeNotif();go('ratealert');}
 
-Rules: Be specific to Sruthi's FDs. Keep replies to 3–5 sentences. For DICGC questions: explain coverage clearly per her actual banks. For breaking FD early: typical penalty is 0.5–1% rate cut. For TDS: no TDS but must declare ₹14,820 in ITR. Suggest human escalation for complaints or account issues.`;
+  // ===== allocation =====
+  function renderAlloc(){
+    splitSafe=+document.getElementById('splitS').value/100;
+    var aa=document.getElementById('allocAmt'); if(aa)aa.textContent=inr(TOTAL);
+    var safe=TOTAL*splitSafe, lad=TOTAL-safe;
+    document.getElementById('splitVal').textContent=Math.round(splitSafe*100);
+    document.getElementById('dPct').textContent=Math.round(splitSafe*100)+'%';
+    document.getElementById('legSafe').textContent=inr(safe);
+    document.getElementById('legLad').textContent=inr(lad);
+    var C=2*Math.PI*48; var arc=splitSafe*C;
+    document.getElementById('donutArc').setAttribute('stroke-dasharray', arc+' '+(C-arc));
+  }
 
-let chatHistory=[];
-let isLoading=false;
-let currentSlab=5;
-const totalInterest=14820;
-
-function goTo(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  const c=document.getElementById(id).querySelector('.content');
-  if(c)c.scrollTop=0;
-  if(id==='s-ai')document.getElementById('chat-msgs').scrollTop=9999;
-}
-
-function markAllRead(){
-  ['n1','n2','n3'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el)el.classList.remove('unread');
-    const dot=document.getElementById(id+'-dot');
-    if(dot)dot.remove();
-  });
-  document.getElementById('notif-sub').textContent='All caught up';
-  document.getElementById('home-notif-dot').style.display='none';
-}
-
-function readNotif(id){
-  const el=document.getElementById(id);
-  if(el)el.classList.remove('unread');
-  const dot=document.getElementById(id+'-dot');
-  if(dot)dot.remove();
-  const remaining=document.querySelectorAll('.notif-item.unread').length;
-  document.getElementById('notif-sub').textContent=remaining>0?remaining+' unread':'All caught up';
-  if(remaining===0)document.getElementById('home-notif-dot').style.display='none';
-}
-
-function filterNotif(btn,type){
-  document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.notif-item').forEach(item=>{
-    if(type==='all'||item.dataset.type===type){
-      item.style.display='flex';
-    } else {
-      item.style.display='none';
+  // ===== comparison =====
+  var curSort='rate';
+  function sortB(s,el){curSort=s;document.querySelectorAll('#screen [data-view=compare] .sortbar .sc').forEach(function(x){x.classList.remove('on');});el.classList.add('on');renderBanks();}
+  function filterCat(c,el){bankCat=c;document.querySelectorAll('#screen [data-view=compare] .bankfilter .bf').forEach(function(x){x.classList.remove('on');});el.classList.add('on');renderBanks();}
+  var RATES_STALE=false; // simulates a live-feed failure to show the honest fallback
+  function toggleStale(){RATES_STALE=!RATES_STALE;renderBanks();}
+  function renderBanks(){
+    var amt=TOTAL*splitSafe; var cur=BANKS.find(function(b){return b.current;});
+    var catLabel=bankCat==='inst'?'Top institutional banks':bankCat==='sfb'?'Small finance banks':'all banks';
+    if(RATES_STALE){
+      document.getElementById('cmpSub').textContent='We can\u2019t confirm live rates right now.';
+      document.getElementById('bankList').innerHTML='<div class="stalebox"><div class="stale-ic">!</div>'+
+        '<h5>Rates couldn\u2019t be confirmed just now</h5>'+
+        '<p>A few of our rate sources didn\u2019t respond. We\u2019d rather show you nothing than a number we can\u2019t stand behind \u2014 please try again in a moment. Your existing FDs are unaffected.</p>'+
+        '<button class="btn btn-gh" style="margin-top:10px;" onclick="toggleStale()">Retry</button></div>';
+      return;
     }
-  });
-}
-
-function setSlab(pct){
-  currentSlab=pct;
-  document.querySelectorAll('.tax-slab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('sl'+pct).classList.add('active');
-  updateTax();
-}
-
-function updateTax(){
-  const tax=Math.round(totalInterest*(currentSlab/100));
-  const net=totalInterest-tax;
-  document.getElementById('slab-pct').textContent=currentSlab;
-  document.getElementById('tax-owe').textContent='₹'+tax.toLocaleString('en-IN');
-  document.getElementById('tax-payable').textContent='₹'+tax.toLocaleString('en-IN');
-  document.getElementById('tax-net').textContent='₹'+net.toLocaleString('en-IN');
-  const tipTitle=document.getElementById('tax-tip-title');
-  const tipBody=document.getElementById('tax-tip-body');
-  if(currentSlab===0){
-    tipTitle.textContent='No tax applicable';
-    tipBody.textContent='Your income is in the nil-tax bracket. You still need to declare ₹14,820 as interest income in your ITR. No TDS is deducted since your interest is below ₹40,000.';
-  } else {
-    tipTitle.textContent='No TDS this year';
-    tipBody.textContent='Your total interest (₹14,820) is below the ₹40,000 TDS limit, so banks won\'t deduct anything. You still need to declare ₹14,820 as income and pay ₹'+tax.toLocaleString('en-IN')+' tax while filing your ITR.';
-  }
-}
-
-function selectOpt(id){
-  document.querySelectorAll('.reinvest-option').forEach(o=>o.classList.remove('selected'));
-  document.getElementById(id).classList.add('selected');
-  const vals={'opt-a':['₹1,19,899','8.5% for 18 months'],'opt-b':['₹1,14,758','7.85% for 12 months'],'opt-c':['₹1,14,982','8.05% for 12 months']};
-  document.getElementById('maturity-val').textContent=vals[id][0];
-  document.getElementById('maturity-sub').textContent='at '+vals[id][1];
-}
-
-function updateTenor(v){
-  document.getElementById('tenor-label').textContent=v<12?v+' months':(v==12?'1 year':(v/12).toFixed(v%12===0?0:1)+' years');
-  const maturity=Math.round(106416*Math.pow(1.085,v/12));
-  document.getElementById('maturity-val').textContent='₹'+maturity.toLocaleString('en-IN');
-}
-
-function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
-function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
-
-function appendMsg(role,text){
-  const msgs=document.getElementById('chat-msgs');
-  const div=document.createElement('div');
-  div.className='msg '+role;
-  const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  let extra='';
-  if(role==='ai'&&(text.toLowerCase().includes('complaint')||text.toLowerCase().includes('human agent')||text.toLowerCase().includes('escalat'))){
-    extra=`<div class="escalate-card"><div style="font-size:12px;font-weight:500;color:#993C1D;"><i class="ti ti-headset" style="font-size:13px;vertical-align:-1px;margin-right:4px;" aria-hidden="true"></i>Connect to a human agent</div><div style="font-size:11px;color:#712B13;margin-top:3px;line-height:1.4;">Our support team resolves account issues in under 2 minutes.</div><button class="escalate-btn" onclick="alert('Connecting you to a support agent...')">Chat with support</button></div>`;
-  }
-  if(role==='user'){
-    div.innerHTML=`<div class="msg-bubble">${text}</div><div class="msg-time">${now}</div>`;
-  } else {
-    div.innerHTML=`<div class="msg-row"><div class="ai-avatar"><i class="ti ti-sparkles" style="font-size:12px;" aria-hidden="true"></i></div><div class="msg-bubble">${text}${extra}</div></div><div class="msg-time" style="margin-left:31px;">${now}</div>`;
-  }
-  msgs.appendChild(div);
-  msgs.scrollTop=msgs.scrollHeight;
-}
-
-function showTyping(){
-  const msgs=document.getElementById('chat-msgs');
-  const div=document.createElement('div');
-  div.className='msg ai';div.id='typing-indicator';
-  div.innerHTML=`<div class="msg-row"><div class="ai-avatar"><i class="ti ti-sparkles" style="font-size:12px;" aria-hidden="true"></i></div><div class="msg-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div></div>`;
-  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
-}
-function removeTyping(){const t=document.getElementById('typing-indicator');if(t)t.remove();}
-
-async function sendMessage(){
-  const input=document.getElementById('chat-input');
-  const text=input.value.trim();
-  if(!text||isLoading)return;
-  document.getElementById('quick-chips').style.display='none';
-  input.value='';input.style.height='auto';
-  appendMsg('user',text);
-  chatHistory.push({role:'user',content:text});
-  isLoading=true;
-  document.getElementById('send-btn').disabled=true;
-  document.getElementById('ai-status').textContent='Thinking...';
-  showTyping();
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:PORTFOLIO_CONTEXT,messages:chatHistory})
+    document.getElementById('cmpSub').textContent='Live FD rates for '+inr(amt)+' across '+catLabel+'. Your savings banks (HDFC, Axis) are included.';
+    var list=BANKS.filter(function(b){return !b.current;});
+    if(bankCat!=='all')list=list.filter(function(b){return b.cat===bankCat;});
+    list=list.slice();
+    if(curSort==='rate')list.sort(function(a,b){return b.rate-a.rate;});
+    if(curSort==='safety')list.sort(function(a,b){return b.safety-a.safety||b.rate-a.rate;});
+    if(curSort==='aftertax')list.sort(function(a,b){return afterTax(b.rate)-afterTax(a.rate);});
+    var html='';
+    if(list.length===0){html='<div style="text-align:center;color:var(--slate-l);font-size:13px;padding:20px;">No banks in this category.</div>';}
+    list.forEach(function(b,i){
+      var best=i===0&&curSort==='rate'; var gainPre=(b.rate-cur.rate)/100*amt; var gainPost=afterTax(gainPre);
+      var tag=b.yourbank?' <span class="yourbank-tag">your bank</span>':(best?' <span class="pill best">Top pick</span>':'');
+      html+='<div class="bankrow '+(best?'best':'')+'" onclick="chooseBank(\''+b.nm+'\','+b.rate+',\''+b.rating+'\',\''+b.mean.replace(/'/g,"")+'\')">'+
+        '<div class="logo" style="background:'+b.col+'">'+b.ab+'</div>'+
+        '<div class="info"><div class="nm">'+b.nm+tag+'</div>'+
+        '<div class="meaning">'+b.rating+' — '+b.mean+'</div>'+
+        '<div class="srcline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg> ⌗ '+b.agency+' rating · DICGC ₹5L · rate Jun 2026</div></div>'+
+        '<div class="rate"><div class="pct num">'+b.rate.toFixed(2)+'%</div>'+(gainPre>0?'<div class="gain num">+'+inr(gainPost)+'/yr after tax</div>':'')+'</div></div>';
     });
-    const data=await res.json();
-    removeTyping();
-    const reply=data.content&&data.content[0]&&data.content[0].text?data.content[0].text:'Sorry, something went wrong. Try again.';
-    chatHistory.push({role:'assistant',content:reply});
-    appendMsg('ai',reply);
-    document.getElementById('ai-status').textContent='Knows your portfolio · Ready to help';
-  } catch(e){
-    removeTyping();
-    appendMsg('ai','Something went wrong. Please try again.');
-    document.getElementById('ai-status').textContent='Knows your portfolio · Ready to help';
+    html+='<div class="bankrow current" onclick="chooseBank(\''+cur.nm+'\','+cur.rate+',\''+cur.rating+'\',\''+cur.mean.replace(/'/g,"")+'\')">'+
+      '<div class="logo" style="background:'+cur.col+'">'+cur.ab+'</div>'+
+      '<div class="info"><div class="nm">'+cur.nm+' <span class="pill cur">current FD</span></div><div class="meaning">Your existing FD bank, shown for comparison.</div></div>'+
+      '<div class="rate"><div class="pct num" style="color:var(--slate)">'+cur.rate.toFixed(2)+'%</div></div></div>';
+    document.getElementById('bankList').innerHTML=html;
   }
-  isLoading=false;
-  document.getElementById('send-btn').disabled=false;
-}
+  function chooseBank(nm,rate,rating,mean){
+    var amt=TOTAL*splitSafe; var earn=amt*rate/100; var tax=earn*SLAB; var keep=earn-tax;
+    document.getElementById('confTitle').textContent='New FD · '+nm;
+    document.getElementById('cAmt').textContent=inr(amt);
+    document.getElementById('cRate').textContent=rate.toFixed(2)+'%';
+    document.getElementById('cInt').textContent=inr(earn);
+    document.getElementById('cTaxK').textContent='Less ~'+taxPct()+'% tax on interest';
+    document.getElementById('cTax').textContent='\u2212'+inr(tax);
+    document.getElementById('cKeep').textContent=inr(keep);
+    document.getElementById('cSafety').textContent=nm.split(' ')[0]+' · '+rating+' ('+mean.split(' · ')[0]+')';
+    document.getElementById('succBank').textContent=nm.split(' ')[0]+' · '+rate.toFixed(2)+'%';
+    document.getElementById('succMsg').textContent='Your '+inr(TOTAL*splitSafe)+' is now in a '+rate.toFixed(2)+'% insured FD, up from 3% in savings. The laddered portion frees up every 3 months.';
+    go('confirm');
+  }
 
-function sendQuick(text){document.getElementById('chat-input').value=text;sendMessage();}
+  // ===== calculator =====
+  var calcTen=12;
+  function openCalc(){go('calc');renderCalc();}
+  function setTen(m,el){calcTen=m;document.querySelectorAll('#screen [data-view=calc] #calcTen .sc').forEach(function(x){x.classList.remove('on');});el.classList.add('on');renderCalc();}
+  function renderCalc(){
+    var amt=+document.getElementById('calcAmtS').value, yrs=calcTen/12, rate=8.10;
+    var gross=amt*(Math.pow(1+rate/100,yrs)-1), net=gross*(1-SLAB), mat=amt+net;
+    document.getElementById('calcMat').textContent=inr(mat);
+    document.getElementById('calcAmtL2').textContent=inr(amt);
+    document.getElementById('calcInt').textContent=inr(net);
+    document.getElementById('calcAmtL').textContent=inr(amt);
+    var tenTxt=calcTen<12?(calcTen+' months'):((calcTen/12)+(calcTen===12?' year':' years'));
+    document.getElementById('calcTenL').textContent=tenTxt;
+    document.getElementById('calcFact').textContent='Compounded annually at '+rate.toFixed(2)+'%, taxed at a '+taxPct()+'% slab, over '+tenTxt+'. Every input is yours to change; the math is shown so you can trust it.';
+  }
+
+  // ===== ladder =====
+  var RATES=[7.4,7.7,7.96,8.1];
+  var DATES=['25 Sep','25 Dec','25 Mar','25 Jun'];
+  function renderLad(){
+    var total=+document.getElementById('ladS').value, n=4, per=Math.round(total/n/1000)*1000, used=0, rungs=[];
+    var months=[3,6,9,12];
+    for(var i=0;i<n;i++){var a=i===n-1?total-used:per;used+=a;rungs.push({i:i+1,amt:a,m:months[i],rate:RATES[i]});}
+    document.getElementById('ladTot').textContent=inr(total);
+    var mx=Math.max.apply(null,rungs.map(function(r){return r.amt;}));
+    document.getElementById('ladVis').innerHTML=rungs.map(function(r){return '<div class="c"><div class="stk" style="height:'+Math.round(28+r.amt/mx*70)+'%"></div><div class="mo">'+r.m+'mo</div></div>';}).join('');
+    document.getElementById('rungL').innerHTML=rungs.map(function(r,idx){return '<div class="rung'+(idx===0?' fire':'')+'"><div class="st">'+(idx===0?'\u2605':r.i)+'</div><div class="br"><div class="t">'+r.m+'-month FD · '+r.rate+'%</div><div class="wn">'+(idx===0?'rung one — your first FD':'matures '+DATES[idx]+' → next prompt')+'</div></div><div class="am num">'+inr(r.amt)+'</div></div>';}).join('');
+  }
+
+  // ===== source modal =====
+  // each: [title, body, meta(as-of/publisher), linkLabel] — presented as the live app would
+  var SRC={
+    rate:['Partner bank FD rates','Live 1-year FD rates across Stable Money\u2019s 200+ partner banks. Top insured rate currently 8.10%; a typical savings account pays ~3%.','Partner data · updated daily','View all partner rates'],
+    rbi:['RBI Monetary Policy statement','The repo rate is set by the RBI\u2019s Monetary Policy Committee and published after each meeting. FD rates typically follow repo moves within weeks.','Reserve Bank of India · Jun 2026','Read the RBI statement'],
+    ladder:['FD laddering strategy','Splitting a sum across staggered maturities balances liquidity and rate-averaging \u2014 a standard approach documented by major banks and the RBI. Stable Money structures it for you in one tap.','Industry standard practice','How laddering works'],
+    tax:['FD interest taxation','Interest on a fixed deposit is taxed at your income-tax slab. TDS applies above \u20b950,000 interest per bank per year (\u20b91,00,000 for seniors). Figures here use your profile slab.','Income Tax rules · FY25-26','See the tax rule'],
+    dicgc:['DICGC deposit insurance','Your deposits are insured up to \u20b95,00,000 per depositor per bank by the Deposit Insurance and Credit Guarantee Corporation, an RBI subsidiary.','dicgc.org.in · Govt. of India','Verify at dicgc.org.in'],
+    rating:['Credit rating','This bank\u2019s safety grade from the rating agency (e.g. ICRA / CRISIL \u201cA\u201d = adequate safety, \u201cAAA\u201d = highest). Ratings are public on the agency\u2019s site.','ICRA / CRISIL','Check the rating'],
+    break:['Premature-withdrawal rules','Breaking an FD early trims the interest rate by ~0.5\u20131% for the period held; your principal is never touched. Set by the issuing bank under RBI guidelines.','RBI guidelines · bank policy','See the rules'],
+    buffer:['Emergency-fund guidance','Standard personal-finance guidance is to keep 3\u20136 months of essential expenses easily accessible before locking money into longer-term products. A liquid or sweep-in FD lets that buffer earn FD-level interest while staying withdrawable on demand.','Widely-cited personal-finance norm','Why an emergency fund']  };
+  function showSrc(k){var s=SRC[k];if(!s)return;
+    document.getElementById('srcTitle').textContent=s[0];
+    document.getElementById('srcBody').textContent=s[1];
+    document.getElementById('srcMeta').textContent=s[2];
+    document.getElementById('srcLinkLabel').textContent=s[3];
+    document.getElementById('srcModal').style.display='flex';}
+  function closeSrc(e,force){if(force||e.target.id==='srcModal')document.getElementById('srcModal').style.display='none';}
+
+  // init
+  // ===== AI guidance (the value-add component) =====
+  var aiSel={age:'young',tax:0.2,goal:'balance'};
+  function openAI(){go('aiguide');}
+  function aiSeg(grp,key,val,el){document.querySelectorAll('#'+grp+' button').forEach(function(b){b.classList.remove('on');});el.classList.add('on');aiSel[key]=val;}
+  var aiTimer=null;
+  function aiGenerate(){
+    if(aiTimer){clearInterval(aiTimer);aiTimer=null;}
+    var amount=+document.getElementById('aiAmt').value;
+    var goal=aiSel.goal, age=aiSel.age, tax=aiSel.tax;
+    var safePct = goal==='liquidity'?50 : goal==='returns'?85 : 70;
+    var safeAmt=Math.round(amount*safePct/100), ladAmt=amount-safeAmt;
+    var uplift=age==='senior'?0.5:0, topRate=8.10+uplift;
+    var interest=safeAmt*topRate/100, net=interest*(1-tax);
+    var goalLine = goal==='liquidity'
+      ? "Because staying liquid matters most, we lean toward the laddered half \u2014 more of the money frees up at staggered dates."
+      : goal==='returns'
+      ? "Because you want to maximise returns and are comfortable locking in, we lean most into the top-safety bank at the best insured rate."
+      : "A balanced split \u2014 the bulk in a top-safety bank for the best insured rate, a portion laddered so cash frees up regularly.";
+    var seniorLine = age==='senior' ? " As a senior citizen, you qualify for the +0.50% rate uplift, already reflected." : "";
+    var taxLine = tax===0 ? "At your income level no tax applies, so the full interest is yours."
+      : "Shown after your "+Math.round(tax*100)+"% slab \u2014 FD interest is taxed at slab, so we never quote a pre-tax number as take-home.";
+    var C=2*Math.PI*30, arc=safePct/100*C;
+    var head=''+
+      '<div class="ai-alloc">'+
+      '<div class="ai-donut"><svg width="74" height="74" viewBox="0 0 74 74"><circle cx="37" cy="37" r="30" fill="none" stroke="var(--neon)" stroke-width="12"/><circle cx="37" cy="37" r="30" fill="none" stroke="var(--pri)" stroke-width="12" stroke-dasharray="'+arc+' '+(C-arc)+'"/></svg><div class="c"><div class="a">'+safePct+'%</div><div class="b">safe</div></div></div>'+
+      '<div style="flex:1"><div class="ai-legrow"><span class="sw" style="background:var(--pri)"></span>Top-safety bank<span class="amt num">'+inr(safeAmt)+'</span></div><div class="ai-legrow"><span class="sw" style="background:var(--neon-d)"></span>Laddered<span class="amt num">'+inr(ladAmt)+'</span></div></div></div>'+
+      '<div class="ai-typed" id="aiTyped"></div>';
+    document.getElementById('aiOut').innerHTML=head;
+    var script=goalLine+seniorLine+'\n\n'+
+      'On the top-safety portion of '+inr(safeAmt)+' at '+topRate.toFixed(2)+'%, that\u2019s about '+inr(interest)+' interest \u2014 you keep \u2248'+inr(net)+' after tax. '+taxLine+'\n\n'+
+      'Suggested issuers to compare: Suryoday '+(8.10+uplift).toFixed(2)+'% [ICRA A], Utkarsh '+(8.10+uplift).toFixed(2)+'% [CRISIL A+], Shivalik '+(7.80+uplift).toFixed(2)+'% [CRISIL A].\n\n'+
+      'Your savings banks also offer FDs: HDFC '+(7.00+uplift).toFixed(2)+'% and Axis '+(7.10+uplift).toFixed(2)+'% — both AAA-rated. They\u2019re safer-rated but pay less; the small finance banks pay more at a slightly lower rating. Both are DICGC-insured to \u20b95L, so the gap is rating, not insurance.\n\n'+
+      'Adjust the split anytime to fit your plan.';
+    var el=document.getElementById('aiTyped'); var cur=document.createElement('span'); cur.className='ai-cursor'; el.appendChild(cur);
+    var i=0;
+    aiTimer=setInterval(function(){
+      if(i>=script.length){clearInterval(aiTimer);aiTimer=null;cur.remove();aiFacts(el);return;}
+      cur.insertAdjacentText('beforebegin',script[i]);i++;
+    },10);
+  }
+  function aiFacts(el){
+    var d=document.createElement('div');
+    d.innerHTML=''+
+      '<div class="fact" style="margin-top:10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><p>Split principle = <b>standard FD laddering</b> (banks &amp; RBI). <span class="src" onclick="showSrc(\'ladder\')">source</span></p></div>'+
+      '<div class="fact" style="margin-top:7px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><p>Every issuer <b>DICGC-insured to \u20b95L</b>. <span class="src" onclick="showSrc(\'dicgc\')">verify</span> · ratings: <span class="src" onclick="showSrc(\'rating\')">ICRA/CRISIL</span></p></div>';
+    el.appendChild(d);
+  }
+
+  // ===== production-sourcing hover tooltips (presenter cue) =====
+  var TIP={
+    rate:'In production: pulled <b>live from partner-bank feeds</b>, refreshed daily across 200+ banks.',
+    rbi:'In production: triggered by the <b>RBI MPC announcement</b> feed and linked to the official statement.',
+    ladder:'In production: links to <b>published laddering guidance</b> from major banks &amp; the RBI.',
+    tax:'In production: computed from the user\u2019s <b>tax profile</b> using current Income-Tax rules.',
+    dicgc:'In production: links straight to <b>dicgc.org.in</b> so the user verifies the cover themselves.',
+    rating:'In production: pulled from the <b>rating agency</b> (ICRA/CRISIL) and linked to their public page.',
+    break:'In production: reflects the <b>issuing bank\u2019s premature-withdrawal policy</b> under RBI norms.'
+  };
+  function tipFor(el){
+    // find a showSrc('key') in this element or its descendants
+    var oc=el.getAttribute&&el.getAttribute('onclick');
+    if(oc){var m=oc.match(/showSrc\('([^']+)'\)/);if(m)return TIP[m[1]];}
+    var inner=el.querySelector&&el.querySelector('[onclick*="showSrc"]');
+    if(inner){var m2=inner.getAttribute('onclick').match(/showSrc\('([^']+)'\)/);if(m2)return TIP[m2[1]];}
+    // generic fact chip with no explicit source
+    if(el.classList&&el.classList.contains('fact'))return 'In production: every figure shown here is <b>pulled from its named source</b> and linked for the user to verify.';
+    return null;
+  }
+  (function(){
+    var tip=document.getElementById('tip');
+    function show(e,t){tip.innerHTML=t;tip.style.display='block';
+      var r=tip.getBoundingClientRect();
+      var x=e.clientX-r.width/2; if(x<8)x=8; if(x+r.width>window.innerWidth-8)x=window.innerWidth-r.width-8;
+      var y=e.clientY-r.height-14; if(y<8)y=e.clientY+18;
+      tip.style.left=x+'px';tip.style.top=y+'px';requestAnimationFrame(function(){tip.style.opacity='1';});}
+    function hide(){tip.style.opacity='0';setTimeout(function(){tip.style.display='none';},120);}
+    document.addEventListener('mouseover',function(e){
+      var el=e.target.closest('.src,.fact'); if(!el)return;
+      var t=tipFor(el); if(t)show(e,t);
+    });
+    document.addEventListener('mousemove',function(e){
+      if(tip.style.display!=='block')return;
+      var el=e.target.closest('.src,.fact'); if(!el){hide();return;}
+      var r=tip.getBoundingClientRect();
+      var x=e.clientX-r.width/2; if(x<8)x=8; if(x+r.width>window.innerWidth-8)x=window.innerWidth-r.width-8;
+      var y=e.clientY-r.height-14; if(y<8)y=e.clientY+18;
+      tip.style.left=x+'px';tip.style.top=y+'px';
+    });
+    document.addEventListener('mouseout',function(e){
+      var el=e.target.closest('.src,.fact'); if(el&&!el.contains(e.relatedTarget))hide();
+    });
+  })();
+
+  renderAlloc();renderBanks();renderCalc();renderLad();
 </script>
 </body>
 </html>
